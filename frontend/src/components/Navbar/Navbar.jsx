@@ -55,9 +55,9 @@ const Navbar = ({ setShowLogin }) => {
       <i className="fa fa-bars"></i>
       <ul className="navbar-menu" ref={menuRef}>
         <Link to="/" onClick={() => setMenu("home")} className={`${menu === "home" ? "active" : ""}`}>home</Link>
-        <a href='#explore-menu' onClick={() => setMenu("menu")} className={`${menu === "menu" ? "active" : ""}`}>menu</a>
+        <a href='#menu' onClick={() => setMenu("menu")} className={`${menu === "menu" ? "active" : ""}`}>menu</a>
         <Link to="/mealplanner" onClick={() => setMenu("mealplanner")} className={`${menu === "mealplanner" ? "active" : ""}`}>Meal Planner</Link>
-        <a href='#app-download' onClick={() => setMenu("mob-app")} className={`${menu === "mob-app" ? "active" : ""}`}>mobile app</a>
+        <Link to="/app-download" onClick={() => setMenu("app-download")} className={`${menu === "app-download" ? "active" : ""}`}>App Download</Link>
         <a href='#footer' onClick={() => setMenu("contact")} className={`${menu === "contact" ? "active" : ""}`}>contact us</a>
       </ul>
       <div className="navbar-right">
@@ -94,3 +94,7 @@ const Navbar = ({ setShowLogin }) => {
 };
 
 export default Navbar;
+
+
+
+

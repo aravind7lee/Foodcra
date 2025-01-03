@@ -1,11 +1,13 @@
-import React, { useContext, useState } from 'react';
-import { StoreContext } from '../../context/StoreContext';
+import React, { useContext, useState, useEffect } from 'react';
+import { StoreContext } from '../../Context/StoreContext';
+
 import './MealPlanner.css';
 
 const MealPlanner = () => {
   const { food_list, addToCart } = useContext(StoreContext);
   const [mealPlan, setMealPlan] = useState({});
   const [selectedDay, setSelectedDay] = useState(null);  // To track which day's dropdown is active
+  const [isDarkMode, setIsDarkMode] = useState(false);  // For Dark Mode
 
   // Days of the week
   const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -22,7 +24,7 @@ const MealPlanner = () => {
   const toggleDropdown = (day) => {
     setSelectedDay(selectedDay === day ? null : day);  // Toggle dropdown for the day
   };
-  
+
   // Handle adding meal to cart by itemId (meal._id)
   const handleAddToCart = (day) => {
     if (mealPlan[day]) {
@@ -56,9 +58,26 @@ const MealPlanner = () => {
     }
   };
 
+  // Toggle between Dark and Light Mode
+  const toggleDarkMode = () => {
+    setIsDarkMode(prevMode => !prevMode);
+    localStorage.setItem('theme', !isDarkMode ? 'dark' : 'light');  // Save the preference
+  };
+
+  // Set initial theme from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === 'dark');
+    }
+  }, []);
+
   return (
-    <div className="meal-planner">
+    <div className={`meal-planner ${isDarkMode ? 'dark-mode' : 'light-mode'}`}>
       <h2>Meal Planner</h2>
+      <button onClick={toggleDarkMode} className="theme-toggle">
+        Switch to {isDarkMode ? 'Light' : 'Dark'} Mode
+      </button>
       <div className="meal-plan-grid">
         {daysOfWeek.map(day => (
           <div key={day} className="meal-plan-day">
@@ -75,10 +94,10 @@ const MealPlanner = () => {
         ))}
       </div>
       
-      <div className="meal-plan-summary">
+      <div className={`meal-plan-summary ${isDarkMode ? 'dark-mode' : 'light-mode'}`}>
         <h3>Meal Summary</h3>
         {daysOfWeek.map(day => (
-          <div key={day} className="meal-summary">
+          <div key={day} className={`meal-summary ${isDarkMode ? 'dark-mode' : 'light-mode'}`}>
             <strong>{day}:</strong> {mealPlan[day] ? mealPlan[day].name : 'No meal selected'}
           </div>
         ))}

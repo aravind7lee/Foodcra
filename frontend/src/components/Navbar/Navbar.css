@@ -286,7 +286,8 @@ body.dark-mode .navbar-profile-dropdown {
   }
   
 
-@media (max-width:1050px) {
+/* Large screens - adjust for smaller screens */
+@media (max-width: 1050px) {
     .navbar .logo {
         width: 140px;
     }
@@ -310,14 +311,17 @@ body.dark-mode .navbar-profile-dropdown {
 
     .nav_dropdown {
         display: none;
-      }
+    }
+
+    .switch {
+        margin-left: 10px;
+    }
 }
 
-@media (max-width:900px) {
+@media (max-width: 900px) {
     .navbar .logo {
         width: 120px;
     }
-
 
     .navbar-menu {
         gap: 15px;
@@ -343,7 +347,7 @@ body.dark-mode .navbar-profile-dropdown {
         width: 100%;
         position: absolute;
         background: linear-gradient(90deg, #49557E, #cbc9ba);
-        top: 190px;
+        top: 160px;
         z-index: 999;
         padding: 20px;
         border-radius: 10px;
@@ -363,14 +367,15 @@ body.dark-mode .navbar-profile-dropdown {
     .nav_dropdown.open {
         transform: rotate(180deg);
     }
-
-
-
 }
 
 @media (max-width: 500px) {
     .navbar {
-        padding: 8px 0px;
+        padding: 10px 0;
+    }
+
+    .navbar-right {
+        gap: 15px;
     }
 
     .nav-logo {
@@ -379,8 +384,77 @@ body.dark-mode .navbar-profile-dropdown {
 
     .navbar-menu {
         height: auto;
-        top: 175px; 
+        top: 140px;
+    }
+}
+
+@media (max-width: 450px) {
+    .navbar-right img {
+        width: 18px;
     }
 
- 
+    .navbar-right button {
+        padding: 6px 20px;
+        font-size: 14px;
+    }
+
+    .nav_dropdown {
+        width: 25px;
+    }
+}
+
+@media (max-width: 400px) {
+    .navbar .logo {
+        width: 100px;
+    }
+
+    .navbar-right {
+        gap: 10px;
+    }
+
+    .nav_dropdown {
+        width: 20px;
+    }
+}
+
+@media (max-width: 350px) {
+    .navbar {
+        padding: 5px 0;
+    }
+
+    .navbar-right img {
+        width: 16px;
+    }
+
+    .navbar-right button {
+        padding: 5px 15px;
+        font-size: 12px;
+    }
+
+    .navbar-menu {
+        top: 120px;
+    }
+}
+
+@media (max-width: 300px) {
+    .navbar .logo {
+        width: 80px;
+    }
+
+    .navbar-right {
+        gap: 8px;
+    }
+
+    .navbar-right button {
+        padding: 4px 10px;
+        font-size: 10px;
+    }
+
+    .nav_dropdown {
+        width: 15px;
+    }
+
+    .navbar-menu {
+        top: 100px;
+    }
 }

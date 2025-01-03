@@ -1,7 +1,6 @@
 /* General MealPlanner Container */
 .meal-planner {
     padding: 2rem;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     font-family: 'Poppins', sans-serif;
     color: #333;
     border-radius: 15px;
@@ -9,24 +8,51 @@
     max-width: 1200px;
     margin: 0 auto;
     margin-top: 100px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light Mode */
+.light-mode {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    color: #333;
+}
+
+/* Dark Mode */
+.dark-mode {
+    background: linear-gradient(135deg, #444 0%, #444 100%);
+    color: #f5f5f5;
+}
+
+/* Toggle Button */
+.theme-toggle {
+    background-color: #ff9900;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background-color: #e7792f;
 }
 
 .meal-planner h2 {
     color:#ffaa5a;
-    padding: 10px
+    padding: 10px;
 }
 
-/* Adjust the grid to fit properly */
-/* Center-align the meal planner boxes */
+/* Meal Grid */
 .meal-plan-grid {
     display: flex;
-    justify-content: center; /* Centers the boxes horizontally */
+    justify-content: center;
     gap: 1.5rem;
-    flex-wrap: wrap; /* Allows the boxes to wrap on smaller screens */
+    flex-wrap: wrap;
 }
 
-
-/* Meal Day Box Design */
 .meal-plan-day {
     background: #ffffff;
     padding: 1.5rem;
@@ -35,6 +61,11 @@
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .meal-plan-day {
+    background: #555;
+    color: #fff;
 }
 
 .meal-plan-day:hover {
@@ -50,7 +81,6 @@
     letter-spacing: 1px;
 }
 
-/* Dropdown Select Styling */
 select {
     padding: 0.5rem;
     width: 100%;
@@ -93,6 +123,11 @@ select:focus {
     border-radius: 12px;
 }
 
+.dark-mode .meal-plan-summary {
+    background-color: #555;
+    color: #fff;
+}
+
 .meal-summary {
     margin: 0.5rem 0;
     font-size: 1rem;
@@ -101,6 +136,11 @@ select:focus {
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     border: 1px solid #eee;
+}
+
+.dark-mode .meal-summary {
+    background-color: #666;
+    color: #fff
 }
 
 .meal-plan-summary h3 {
