@@ -14,19 +14,19 @@ const reviews = [
   {
     name: "Assault Ganesh",
     rating: 4,
-    review: "Delicious meal and fast delivery, Ganesh was very impressed!",
+    review: "Delicious meal and fast delivery, Ganesh was very impressed! ☺️🎀",
     image: assets.Gangstar,
   },
   {
     name: "Irfan's view",
     rating: 4,
-    review: "Delicious meal and fast delivery, would definitely order again!",
+    review: "Delicious meal and fast delivery, would definitely order again! ",
     image: assets.irfans,
   },
   {
     name: "Sivaji",
     rating: 1,
-    review: "Ohh Shit! I was so disappointed! I had a great time but I was not satisfied with the food!",
+    review: "Ohh My God! I was so disappointed! I had a great time but I was not satisfied with the food!, ahhh vazhthukkal vazhthukkal 🥰",
     image: assets.Raj,
   },
   {
