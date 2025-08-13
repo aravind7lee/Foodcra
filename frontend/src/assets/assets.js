@@ -71,6 +71,12 @@ import parcel_icon from './parcel_icon.png'
 import checked from './checked.png'
 import un_checked from './un_checked.png'
 import nav_dropdown from './nav_dropdown.png'
+import galaxystar from './galaxystar.png'
+import Gangstar from './Gangstar.png'
+import irfans from './irfans.png'
+import Raj from './Raj.png'
+import shtit from './shtit.png'
+import ishow from './ishow.png'
 
 
 export const assets = {
@@ -95,7 +101,13 @@ export const assets = {
     nav_dropdown,
     twitter_icon,
     instagram_icon,
-    linkedin_icon
+    linkedin_icon,
+    galaxystar,
+    Gangstar,
+    irfans,
+    Raj,
+    shtit,
+    ishow
 }
 
 export const menu_list = [

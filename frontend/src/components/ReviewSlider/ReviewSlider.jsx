@@ -1,52 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Slider from "react-slick";
 import "./ReviewSlider.css";
-import { FaStar } from 'react-icons/fa'; // Using react-icons for star ratings
+import { FaStar } from 'react-icons/fa'; 
+import { assets } from '../../assets/assets'; // adjust the relative path as needed
 
 const reviews = [
   {
     name: "Galaxy Star",
     rating: 5,
     review: "The food was amazing! The spices were perfect, Galaxy Star eating the food in Galaxy! 🌌",
-    image: "/src/assets/galaxystar.png",
+    image: assets.galaxystar,
   },
   {
     name: "Assault Ganesh",
     rating: 4,
     review: "Delicious meal and fast delivery, Ganesh was very impressed!",
-    image: "/src/assets/Gangstar.png",
+    image: assets.Gangstar,
   },
   {
     name: "Irfan's view",
     rating: 4,
     review: "Delicious meal and fast delivery, would definitely order again!",
-    image: "/src/assets/irfans.png",
+    image: assets.irfans,
   },
   {
     name: "Sivaji",
     rating: 1,
     review: "Ohh Shit! I was so disappointed! I had a great time but I was not satisfied with the food!",
-    image: "/src/assets/Raj.png",
+    image: assets.Raj,
   },
   {
     name: "DisappointedMan",
     rating: 1,
     review: "Waited an hour for this... just for my taste buds to be betrayed. I’m standing here like, ‘This can’t be real.’ Absolute letdown. 😒🍽️",
-    image: "/src/assets/shtit.png"
-  } ,
+    image: assets.shtit
+  },
   {
     name: "Ishowspeed",
     rating: 5,
     review: "OMG!! THIS FOOD IS CRAZYYYY 😱🔥!! Bro, I took one bite and my mouth was like, BOOM 💥!! The spice? BANG BANG 🔥🔥!! Y’all gotta TRY this right NOW before I eat it all!! No cap, this is 5 stars, baby!! WOO WOO!! 🤯🍗",
-    image: "/src/assets/ishow.png",
+    image: assets.ishow,
   },  
-
 ];
 
 const ReviewSlider = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // Toggle between dark and light themes only for the ReviewSlider
   const toggleTheme = () => {
     setIsDarkMode(prevMode => !prevMode);
   };

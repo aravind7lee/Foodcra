@@ -87,6 +87,8 @@ const NutritionFilter = () => {
       return DEFAULT_FILTERS;
     }
   });
+  
+  const [appliedFilters, setAppliedFilters] = useState(DEFAULT_FILTERS);
   const [errors, setErrors] = useState({});
   const [live, setLive] = useState(true);
   const [sortBy, setSortBy] = useState("match");
@@ -260,6 +262,7 @@ const NutritionFilter = () => {
     if (Object.keys(e).length === 0) {
       const final = calcFiltered(flts);
       setResults(final);
+      setAppliedFilters(flts);
       
       if (typeof setFilteredFoodList === "function") {
         setFilteredFoodList(final);
@@ -546,6 +549,7 @@ const NutritionFilter = () => {
                 className="nf-btn ghost"
                 onClick={() => {
                   setFilters(DEFAULT_FILTERS);
+                  applyFilters(DEFAULT_FILTERS);
                   localStorage.removeItem("nf_last_filters");
                 }}
               >
@@ -624,10 +628,10 @@ const NutritionFilter = () => {
                       <small>Protein</small>
                       <div className="nf-stat">
                         <strong>{cartTotals.protein} g</strong>
-                        <small>target {filters.minProtein || "—"}</small>
+                        <small>target {appliedFilters.minProtein || "—"}</small>
                         <Progress 
                           value={cartTotals.protein} 
-                          max={parseNum(filters.minProtein) || Math.max(100, cartTotals.protein)} 
+                          max={parseNum(appliedFilters.minProtein) || Math.max(100, cartTotals.protein)} 
                         />
                       </div>
                     </div>
@@ -636,10 +640,10 @@ const NutritionFilter = () => {
                       <small>Carbs</small>
                       <div className="nf-stat">
                         <strong>{cartTotals.carbs} g</strong>
-                        <small>limit {filters.maxCarbs || "—"}</small>
+                        <small>limit {appliedFilters.maxCarbs || "—"}</small>
                         <Progress 
                           value={cartTotals.carbs} 
-                          max={parseNum(filters.maxCarbs) || Math.max(100, cartTotals.carbs)} 
+                          max={parseNum(appliedFilters.maxCarbs) || Math.max(100, cartTotals.carbs)} 
                         />
                       </div>
                     </div>
@@ -648,10 +652,10 @@ const NutritionFilter = () => {
                       <small>Fat</small>
                       <div className="nf-stat">
                         <strong>{cartTotals.fat} g</strong>
-                        <small>limit {filters.maxFat || "—"}</small>
+                        <small>limit {appliedFilters.maxFat || "—"}</small>
                         <Progress 
                           value={cartTotals.fat} 
-                          max={parseNum(filters.maxFat) || Math.max(50, cartTotals.fat)} 
+                          max={parseNum(appliedFilters.maxFat) || Math.max(50, cartTotals.fat)} 
                         />
                       </div>
                     </div>
@@ -676,37 +680,37 @@ const NutritionFilter = () => {
             <div className="nf-target-overview">
               <div className="nf-ov-row">
                 <div className="nf-ov-label">Calories</div>
-                <div className="nf-ov-value">{filters.maxCalories || "—"}</div>
+                <div className="nf-ov-value">{appliedFilters.maxCalories || "—"}</div>
                 <Progress 
                   value={cartTotals.calories} 
-                  max={parseNum(filters.maxCalories) || Math.max(2000, cartTotals.calories)} 
+                  max={parseNum(appliedFilters.maxCalories) || Math.max(2000, cartTotals.calories)} 
                 />
               </div>
 
               <div className="nf-ov-row">
                 <div className="nf-ov-label">Protein</div>
-                <div className="nf-ov-value">{filters.minProtein || "—"} g</div>
+                <div className="nf-ov-value">{appliedFilters.minProtein || "—"} g</div>
                 <Progress 
                   value={cartTotals.protein} 
-                  max={parseNum(filters.minProtein) || Math.max(100, cartTotals.protein)} 
+                  max={parseNum(appliedFilters.minProtein) || Math.max(100, cartTotals.protein)} 
                 />
               </div>
 
               <div className="nf-ov-row">
                 <div className="nf-ov-label">Carbs</div>
-                <div className="nf-ov-value">{filters.maxCarbs || "—"} g</div>
+                <div className="nf-ov-value">{appliedFilters.maxCarbs || "—"} g</div>
                 <Progress 
                   value={cartTotals.carbs} 
-                  max={parseNum(filters.maxCarbs) || Math.max(200, cartTotals.carbs)} 
+                  max={parseNum(appliedFilters.maxCarbs) || Math.max(200, cartTotals.carbs)} 
                 />
               </div>
 
               <div className="nf-ov-row">
                 <div className="nf-ov-label">Fat</div>
-                <div className="nf-ov-value">{filters.maxFat || "—"} g</div>
+                <div className="nf-ov-value">{appliedFilters.maxFat || "—"} g</div>
                 <Progress 
                   value={cartTotals.fat} 
-                  max={parseNum(filters.maxFat) || Math.max(100, cartTotals.fat)} 
+                  max={parseNum(appliedFilters.maxFat) || Math.max(100, cartTotals.fat)} 
                 />
               </div>
             </div>
