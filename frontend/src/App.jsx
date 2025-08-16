@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Home from './pages/Home/Home';
 import Footer from './components/Footer/Footer';
 import Navbar from './components/Navbar/Navbar';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import Cart from './pages/Cart/Cart';
 import LoginPopup from './components/LoginPopup/LoginPopup';
 import PlaceOrder from './pages/PlaceOrder/PlaceOrder';
@@ -13,14 +13,19 @@ import Verify from './pages/Verify/Verify';
 import MealPlanner from './components/MealPlanner/MealPlanner';
 import StoreContextProvider from './Context/StoreContext';
 import AppDownload from './components/AppDownload/AppDownload';
-import ExploreMenu from './components/ExploreMenu/ExploreMenu';
 import FoodDisplay from './components/FoodDisplay/FoodDisplay';
+import StickyCart from './components/StickyCart/StickyCart';
 
-const App = () => {
+
+const AppLayout = () => {
   const [showLogin, setShowLogin] = useState(false);
-
+  const location = useLocation();
+  
+  // Don't show StickyCart on Order page
+  const showStickyCart = !location.pathname.startsWith('/order');
+  
   return (
-    <StoreContextProvider>
+    <>
       <ToastContainer />
       {showLogin && <LoginPopup setShowLogin={setShowLogin} />}
       <div className="app">
@@ -36,8 +41,19 @@ const App = () => {
           <Route path="/mealplanner" element={<MealPlanner />} />
           <Route path="/app-download" element={<AppDownload />} />
         </Routes>
+        {showStickyCart && <StickyCart />}
       </div>
       <Footer />
+    </>
+  );
+};
+
+const App = () => {
+  return (
+    <StoreContextProvider>
+      <Routes>
+        <Route path="/*" element={<AppLayout />} />
+      </Routes>
     </StoreContextProvider>
   );
 };
