@@ -275,6 +275,117 @@
   border-radius: 4px;
 }
 
+
+/* Loading states */
+.nf-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.nf-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: nf-spin 1s linear infinite;
+}
+
+@keyframes nf-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.nf-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 20px;
+}
+
+.nf-loading-overlay .nf-spinner {
+  width: 40px;
+  height: 40px;
+  border-width: 4px;
+  border-top-color: var(--primary);
+}
+
+.nf-error-message {
+  background: rgba(244, 67, 54, 0.1);
+  border-left: 4px solid var(--danger);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.nf-error-message strong {
+  color: var(--danger);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Status indicators */
+.nf-status {
+  padding: 0.8rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.nf-status.applying {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  color: #ff9800;
+}
+
+.nf-status.success {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  color: #4caf50;
+}
+
+.nf-status.error {
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  color: #f44336;
+}
+
+/* Position relative for loading overlay */
+.nf-suggestions {
+  position: relative;
+}
+
+/* Additional styles for empty states */
+.nf-empty {
+  text-align: center;
+  padding: 2.5rem;
+  color: var(--gray);
+  font-style: italic;
+  border: 2px dashed rgba(255, 105, 0, 0.2);
+  border-radius: 16px;
+  background: rgba(255, 230, 213, 0.3);
+  font-size: 1.1rem;
+}
+
+.nf-empty p {
+  margin-bottom: 0.5rem;
+}
+
+.nf-empty small {
+  font-size: 0.9rem;
+  display: block;
+}
+
 /* Filter Styles */
 .nf-row {
   display: flex;
@@ -591,14 +702,14 @@
   font-size: 1.1rem;
 }
 
-/* Suggestions & Results */
-.nf-suggest-list, .nf-results-list {
+/* Suggestions */
+.nf-suggest-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.nf-suggest-item, .nf-result-card {
+.nf-suggest-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -610,20 +721,20 @@
   backdrop-filter: blur(4px);
 }
 
-.nf-suggest-item:hover, .nf-result-card:hover {
+.nf-suggest-item:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(255, 105, 0, 0.08);
   border-color: var(--primary-light);
 }
 
-.nf-suggest-title, .nf-result-title {
+.nf-suggest-title {
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: var(--dark);
   font-size: 1.1rem;
 }
 
-.nf-suggest-nut, .nf-result-nuts {
+.nf-suggest-nut {
   display: flex;
   gap: 14px;
   font-size: 0.92rem;
@@ -631,19 +742,19 @@
   flex-wrap: wrap;
 }
 
-.nf-suggest-nut span, .nf-result-nuts span {
+.nf-suggest-nut span {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.nf-suggest-nut span::before, .nf-result-nuts span::before {
+.nf-suggest-nut span::before {
   content: "•";
   color: var(--primary);
   font-weight: bold;
 }
 
-.nf-suggest-actions, .nf-result-right {
+.nf-suggest-actions {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -711,6 +822,8 @@
 .nutrition-filter.dark-mode .nf-target-overview {
   background: rgba(60, 60, 60, 0.4);
 }
+
+
 
 /* =========================
    Responsive Design

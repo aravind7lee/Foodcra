@@ -1,119 +1,192 @@
-import { createContext, useEffect, useState } from "react";
-import { food_list as defaultFoodList, menu_list } from "../assets/assets"; // Assuming default food list from assets
+import { createContext, useEffect, useState, useRef } from "react";
+import { food_list as defaultFoodList, menu_list } from "../assets/assets";
 import axios from "axios";
 
 export const StoreContext = createContext();
 
 const StoreContextProvider = (props) => {
-  const url = "https://foodcra-backend.onrender.com"; // Backend API base URL
-  const [food_list, setFoodList] = useState([]); // Food list state from the API
-  const [filteredFoodList, setFilteredFoodList] = useState([]); // Filtered food list for search or category
-  const [cartItems, setCartItems] = useState({}); // Stores items added to the cart
-  const [token, setToken] = useState(""); // Authentication token for API calls
-  const [referralPoints, setReferralPoints] = useState(0); // User's referral points
-  const [loyaltyPoints, setLoyaltyPoints] = useState(0); // User's loyalty points
-  const [groceryList, setGroceryList] = useState([]); // List of ingredients added to the grocery section
-  const currency = "₹"; // Currency symbol
-  const deliveryCharge = 50; // Flat delivery charge
+  const url = "https://foodcra-backend.onrender.com";
 
-  // Referral and Loyalty Points Management
+  // core data
+  const [food_list, setFoodList] = useState([]);
+  const [filteredFoodList, setFilteredFoodList] = useState([]);
+
+  // cart/auth/points
+  const [cartItems, setCartItems] = useState({});
+  const [token, setToken] = useState("");
+  const [referralPoints, setReferralPoints] = useState(0);
+  const [loyaltyPoints, setLoyaltyPoints] = useState(0);
+  const [groceryList, setGroceryList] = useState([]);
+
+  // search state
+  const [lastQuery, setLastQuery] = useState("");
+  const searchIndexRef = useRef([]);
+
+  // constants
+  const currency = "₹";
+  const deliveryCharge = 50;
+
+  // ---------------------------
+  // Referral and Loyalty Points
+  // ---------------------------
   const addReferralPoints = async (referrerId) => {
-    if (token) {
-      await axios.post(
-        url + "/api/referral/add",
-        { referrerId },
-        { headers: { token } }
-      );
-      setReferralPoints((prevPoints) => prevPoints + 10); // Example: add 10 points per referral
+    if (!token) return;
+    try {
+      await axios.post(url + "/api/referral/add", { referrerId }, { headers: { token } });
+      setReferralPoints((prev) => prev + 10);
+    } catch (err) {
+      console.error("Error adding referral points:", err);
     }
   };
 
   const applyReferralDiscount = () => {
-    if (referralPoints >= 50) {
-      // Discount applied when referral points reach 50 or more
-      return 50; // Apply ₹50 discount
-    }
+    if (referralPoints >= 50) return 50;
     return 0;
   };
 
   const addLoyaltyPoints = async () => {
-    if (token) {
+    if (!token) return;
+    try {
       await axios.post(url + "/api/loyalty/add", {}, { headers: { token } });
-      setLoyaltyPoints((prevPoints) => prevPoints + 5); // Example: 5 points per order
+      setLoyaltyPoints((prev) => prev + 5);
+    } catch (err) {
+      console.error("Error adding loyalty points:", err);
     }
   };
 
   const applyLoyaltyDiscount = () => {
-    if (loyaltyPoints >= 100) {
-      // Discount when loyalty points reach 100 or more
-      return 100; // Apply ₹100 discount
-    }
+    if (loyaltyPoints >= 100) return 100;
     return 0;
   };
 
-  // Add item to the cart
+  // ---------------------------
+  // Cart helpers
+  // ---------------------------
   const addToCart = async (itemId) => {
-    if (!cartItems[itemId]) {
-      setCartItems((prev) => ({ ...prev, [itemId]: 1 }));
-    } else {
-      setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
-    }
+    setCartItems((prev) => {
+      if (!prev[itemId]) return { ...prev, [itemId]: 1 };
+      return { ...prev, [itemId]: prev[itemId] + 1 };
+    });
+
     if (token) {
-      await axios.post(url + "/api/cart/add", { itemId }, { headers: { token } });
-      await addLoyaltyPoints(); // Add loyalty points for each order
+      try {
+        await axios.post(url + "/api/cart/add", { itemId }, { headers: { token } });
+        await addLoyaltyPoints();
+      } catch (err) {
+        console.error("Error adding to cart:", err);
+      }
     }
   };
 
-  // Remove item from the cart
   const removeFromCart = async (itemId) => {
     setCartItems((prev) => {
-      const updatedCart = { ...prev, [itemId]: prev[itemId] - 1 };
-      if (updatedCart[itemId] <= 0) {
-        delete updatedCart[itemId]; // Remove item if the count becomes zero
-      }
-      return updatedCart;
+      const updated = { ...prev, [itemId]: prev[itemId] - 1 };
+      if (updated[itemId] <= 0) delete updated[itemId];
+      return updated;
     });
+
     if (token) {
-      await axios.post(url + "/api/cart/remove", { itemId }, { headers: { token } });
+      try {
+        await axios.post(url + "/api/cart/remove", { itemId }, { headers: { token } });
+      } catch (err) {
+        console.error("Error removing from cart:", err);
+      }
     }
   };
 
-  // Calculate total cart amount
   const getTotalCartAmount = () => {
     let totalAmount = 0;
-    for (const item in cartItems) {
-      const itemInfo = food_list.find((product) => product._id === item);
-      if (itemInfo && cartItems[item] > 0) {
-        totalAmount += itemInfo.price * cartItems[item];
-      }
+    for (const id in cartItems) {
+      const itemInfo = food_list.find((p) => p._id === id);
+      if (itemInfo && cartItems[id] > 0) totalAmount += itemInfo.price * cartItems[id];
     }
-    return totalAmount - applyReferralDiscount() - applyLoyaltyDiscount(); // Subtract discounts
+    return totalAmount - applyReferralDiscount() - applyLoyaltyDiscount();
   };
 
-  // Fetch the food list from the backend API
+  // ---------------------------
+  // Data fetching
+  // ---------------------------
   const fetchFoodList = async () => {
     try {
       const response = await axios.get(url + "/api/food/list");
-      setFoodList(response.data.data);
+      const list = response?.data?.data ?? defaultFoodList ?? [];
+      setFoodList(list);
     } catch (error) {
       console.error("Error fetching food list:", error);
+      setFoodList(defaultFoodList || []);
     }
   };
 
-  // Load cart data for authenticated users
-  const loadCartData = async (token) => {
+  const loadCartData = async (tokenVal) => {
     try {
-      const response = await axios.post(url + "/api/cart/get", {}, { headers: { token } });
-      setCartItems(response.data.cartData || {});
+      const response = await axios.post(url + "/api/cart/get", {}, { headers: { token: tokenVal } });
+      setCartItems(response?.data?.cartData || {});
     } catch (error) {
       console.error("Error loading cart data:", error);
     }
   };
 
-  // Load initial data when the component mounts
+  // ---------------------------
+  // Grocery helpers
+  // ---------------------------
+  const addIngredientsToGrocery = (ingredients) => {
+    setGroceryList((prev) => [...prev, ...ingredients]);
+  };
+
+  // ---------------------------
+  // Search helpers & index
+  // ---------------------------
+  const buildSearchIndex = (list) => {
+    try {
+      const idx = (list || []).map((item) => {
+        const name = (item.name || "").toString().toLowerCase();
+        const category = (item.category || "").toString().toLowerCase();
+        const description = (item.description || "").toString().toLowerCase();
+        const tags = Array.isArray(item.tags) ? item.tags.join(" ").toLowerCase() : "";
+        const combined = `${name} ${category} ${tags} ${description}`
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+        return { id: item._id, key: combined, item };
+      });
+      searchIndexRef.current = idx;
+    } catch (err) {
+      searchIndexRef.current = [];
+    }
+  };
+
+  const applySearch = (rawQuery) => {
+    const q = (rawQuery || "").toString().trim().toLowerCase();
+    setLastQuery(q);
+    if (!q) {
+      setFilteredFoodList(food_list);
+      return;
+    }
+    if (!searchIndexRef.current || searchIndexRef.current.length === 0) buildSearchIndex(food_list);
+
+    const results = searchIndexRef.current
+      .filter((entry) => entry.key.includes(q))
+      .map((entry) => entry.item);
+
+    setFilteredFoodList(results);
+  };
+
+  const resetSearch = () => {
+    setLastQuery("");
+    setFilteredFoodList(food_list);
+  };
+
+  // Keep filtered list in sync & build index when full list loads
+  useEffect(() => {
+    if (Array.isArray(food_list) && food_list.length > 0) {
+      setFilteredFoodList(food_list);
+      buildSearchIndex(food_list);
+    }
+  }, [food_list]);
+
+  // Initial data load
   useEffect(() => {
     async function loadData() {
-      await fetchFoodList(); // Fetch the food list when the component mounts
+      await fetchFoodList();
       const storedToken = localStorage.getItem("token");
       if (storedToken) {
         setToken(storedToken);
@@ -121,14 +194,12 @@ const StoreContextProvider = (props) => {
       }
     }
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Add ingredients to grocery list
-  const addIngredientsToGrocery = (ingredients) => {
-    setGroceryList((prev) => [...prev, ...ingredients]);
-  };
-
-  // Context value to provide to child components
+  // ---------------------------
+  // Context value
+  // ---------------------------
   const contextValue = {
     url,
     food_list,
@@ -152,13 +223,15 @@ const StoreContextProvider = (props) => {
     applyLoyaltyDiscount,
     groceryList,
     addIngredientsToGrocery,
+
+    // Search utilities
+    lastQuery,
+    setLastQuery,
+    applySearch,
+    resetSearch,
   };
 
-  return (
-    <StoreContext.Provider value={contextValue}>
-      {props.children}
-    </StoreContext.Provider>
-  );
+  return <StoreContext.Provider value={contextValue}>{props.children}</StoreContext.Provider>;
 };
 
 export default StoreContextProvider;

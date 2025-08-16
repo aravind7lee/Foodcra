@@ -3,13 +3,12 @@ import { StoreContext } from "../../Context/StoreContext";
 import "./NutritionFilter.css";
 
 const DEFAULT_FILTERS = {
-  maxCalories: "",
-  minProtein: "",
-  maxCarbs: "",
-  maxFat: "",
+  minCalories: 1230,
+  minProtein: 73,
+  maxCarbs: 217,
+  maxFat: 84,
 };
 
-// Nutrition data from your CSV file
 const NUTRITION_DATA = [
   { Name: "Greek Salad", Calories: 250, Protein: 5, Carbs: 10, Fat: 18 },
   { Name: "Veg Salad", Calories: 200, Protein: 3, Carbs: 15, Fat: 12 },
@@ -23,10 +22,10 @@ const NUTRITION_DATA = [
   { Name: "Fruit Ice Cream", Calories: 180, Protein: 3, Carbs: 22, Fat: 10 },
   { Name: "Jar Ice Cream", Calories: 150, Protein: 3, Carbs: 20, Fat: 8 },
   { Name: "Vanilla Ice Cream", Calories: 200, Protein: 4, Carbs: 24, Fat: 11 },
-  { Name: "Chicken Sandwich", Calories: 0, Protein: 0, Carbs: 0, Fat: 0 },
-  { Name: "Vegan Sandwich", Calories: 0, Protein: 0, Carbs: 0, Fat: 0 },
-  { Name: "Grilled Sandwich", Calories: 0, Protein: 0, Carbs: 0, Fat: 0 },
-  { Name: "Bread Sandwich", Calories: 0, Protein: 0, Carbs: 0, Fat: 0 },
+  { Name: "Chicken Sandwich", Calories: 350, Protein: 25, Carbs: 30, Fat: 15 },
+  { Name: "Vegan Sandwich", Calories: 300, Protein: 12, Carbs: 45, Fat: 10 },
+  { Name: "Grilled Sandwich", Calories: 400, Protein: 20, Carbs: 50, Fat: 15 },
+  { Name: "Bread Sandwich", Calories: 280, Protein: 10, Carbs: 35, Fat: 12 },
   { Name: "Cup Cake", Calories: 250, Protein: 4, Carbs: 30, Fat: 12 },
   { Name: "Vegan Cake", Calories: 200, Protein: 5, Carbs: 35, Fat: 10 },
   { Name: "Butterscotch Cake", Calories: 300, Protein: 5, Carbs: 40, Fat: 15 },
@@ -92,7 +91,7 @@ const NutritionFilter = () => {
   const [errors, setErrors] = useState({});
   const [live, setLive] = useState(true);
   const [sortBy, setSortBy] = useState("match");
-  const [results, setResults] = useState([]);
+  const [filteredCount, setFilteredCount] = useState(0);
   const [topMatches, setTopMatches] = useState([]);
   const [presets, setPresets] = useState(() => {
     try {
@@ -102,6 +101,7 @@ const NutritionFilter = () => {
     }
   });
   const [isApplying, setIsApplying] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("idle"); // idle, applying, success, error
 
   const debounceRef = useRef(null);
 
@@ -173,10 +173,38 @@ const NutritionFilter = () => {
     for (const [k, v] of Object.entries(flts)) {
       if (v === "") continue;
       const n = Number(v);
-      if (!Number.isFinite(n)) e[k] = "Invalid number";
-      else if (n < 0) e[k] = "Cannot be negative";
+      if (!Number.isFinite(n)) {
+        e[k] = "Invalid number";
+      } else if (n < 0) {
+        e[k] = "Cannot be negative";
+      } else if (k === "minCalories" && n < 100) {
+        e[k] = "Minimum calories too low";
+      } else if (k === "minProtein" && n < 5) {
+        e[k] = "Minimum protein too low";
+      }
     }
     return e;
+  };
+
+  const filterItems = (items, flts) => {
+    return items.filter(item => {
+      const cal = getNutrient(item, "calories");
+      const prot = getNutrient(item, "protein");
+      const carbs = getNutrient(item, "carbs");
+      const fat = getNutrient(item, "fat");
+      
+      const minCal = parseNum(flts.minCalories);
+      const minProt = parseNum(flts.minProtein);
+      const maxCarbs = parseNum(flts.maxCarbs);
+      const maxFat = parseNum(flts.maxFat);
+      
+      return (
+        (minCal === null || cal >= minCal) &&
+        (minProt === null || prot >= minProt) &&
+        (maxCarbs === null || carbs <= maxCarbs) &&
+        (maxFat === null || fat <= maxFat)
+      );
+    });
   };
 
   const scoreItem = (item, flts) => {
@@ -186,35 +214,40 @@ const NutritionFilter = () => {
     const carbs = getNutrient(item, "carbs");
     const fat = getNutrient(item, "fat");
 
-    const applyConstraint = (value, limit, penalty, bonus) => {
-      if (limit === "" || limit === null) return;
-      const numLimit = Number(limit);
-      if (value > numLimit) {
-        score -= clamp(((value - numLimit) / Math.max(1, numLimit)) * penalty, 0, penalty);
+    // Apply constraints for each nutrient
+    const applyConstraint = (value, target, penalty, bonus, isMin = false) => {
+      if (target === "" || target === null) return;
+      const numTarget = Number(target);
+      
+      if (isMin) {
+        // Minimum constraint (like calories and protein)
+        if (value < numTarget) {
+          score -= clamp(((numTarget - value) / Math.max(1, numTarget)) * penalty, 0, penalty);
+        } else {
+          score += clamp(((value - numTarget) / Math.max(1, numTarget)) * bonus, 0, bonus);
+        }
       } else {
-        score += clamp(((numLimit - value) / Math.max(1, numLimit)) * bonus, 0, bonus);
+        // Maximum constraint (like carbs and fat)
+        if (value > numTarget) {
+          score -= clamp(((value - numTarget) / Math.max(1, numTarget)) * penalty, 0, penalty);
+        } else {
+          score += clamp(((numTarget - value) / Math.max(1, numTarget)) * bonus, 0, bonus);
+        }
       }
     };
 
-    applyConstraint(cal, flts.maxCalories, 60, 5);
+    // Apply constraints with appropriate parameters
+    applyConstraint(cal, flts.minCalories, 60, 5, true);
+    applyConstraint(prot, flts.minProtein, 50, 10, true);
     applyConstraint(carbs, flts.maxCarbs, 30, 3);
     applyConstraint(fat, flts.maxFat, 20, 2);
-    
-    if (flts.minProtein !== "" && flts.minProtein !== null) {
-      const minProt = Number(flts.minProtein);
-      if (prot < minProt) {
-        score -= clamp(((minProt - prot) / Math.max(1, minProt)) * 50, 0, 50);
-      } else {
-        score += clamp(((prot - minProt) / Math.max(1, minProt)) * 10, 0, 10);
-      }
-    }
     
     return Math.round(clamp(score, 0, 100));
   };
 
   const calcFiltered = (flts) => {
     const parsed = {
-      maxCalories: parseNum(flts.maxCalories),
+      minCalories: parseNum(flts.minCalories),
       minProtein: parseNum(flts.minProtein),
       maxCarbs: parseNum(flts.maxCarbs),
       maxFat: parseNum(flts.maxFat),
@@ -222,62 +255,49 @@ const NutritionFilter = () => {
 
     let list = [...food_list];
     
-    if (parsed.maxCalories !== null) {
-      list = list.filter(it => getNutrient(it, "calories") <= parsed.maxCalories);
-    }
-    if (parsed.minProtein !== null) {
-      list = list.filter(it => getNutrient(it, "protein") >= parsed.minProtein);
-    }
-    if (parsed.maxCarbs !== null) {
-      list = list.filter(it => getNutrient(it, "carbs") <= parsed.maxCarbs);
-    }
-    if (parsed.maxFat !== null) {
-      list = list.filter(it => getNutrient(it, "fat") <= parsed.maxFat);
-    }
+    list = filterItems(list, flts);
 
     const withScore = list.map(it => ({
       ...it,
       __matchScore: scoreItem(it, flts)
     }));
 
-    switch(sortBy) {
-      case "calories": 
-        withScore.sort((a, b) => getNutrient(a, "calories") - getNutrient(b, "calories"));
-        break;
-      case "protein": 
-        withScore.sort((a, b) => getNutrient(b, "protein") - getNutrient(a, "protein"));
-        break;
-      default: 
-        withScore.sort((a, b) => b.__matchScore - a.__matchScore);
-    }
+    // Sort by match score by default
+    withScore.sort((a, b) => b.__matchScore - a.__matchScore);
 
     return withScore;
   };
 
   const applyFilters = (flts = filters) => {
     setIsApplying(true);
+    setFilterStatus("applying");
     const e = validate(flts);
     setErrors(e);
     
     if (Object.keys(e).length === 0) {
-      const final = calcFiltered(flts);
-      setResults(final);
-      setAppliedFilters(flts);
-      
-      if (typeof setFilteredFoodList === "function") {
-        setFilteredFoodList(final);
-      }
-      
       try {
+        const final = calcFiltered(flts);
+        setFilteredCount(final.length);
+        
+        if (typeof setFilteredFoodList === "function") {
+          setFilteredFoodList(final);
+        }
+        
         localStorage.setItem("nf_last_filters", JSON.stringify(flts));
-      } catch {}
-      
-      const suggestions = food_list
-        .map(it => ({ ...it, __matchScore: scoreItem(it, flts) }))
-        .sort((a, b) => b.__matchScore - a.__matchScore)
-        .slice(0, 8);
-      
-      setTopMatches(suggestions);
+        
+        setTopMatches(final.slice(0, 8));
+        setAppliedFilters(flts);
+        setFilterStatus(final.length > 0 ? "success" : "no-results");
+        
+        // Log for debugging
+        console.log("Applied filters:", flts);
+        console.log("Top matches:", final.slice(0, 8).map(i => i.name));
+      } catch (error) {
+        console.error("Filtering error:", error);
+        setFilterStatus("error");
+      }
+    } else {
+      setFilterStatus("error");
     }
     
     setIsApplying(false);
@@ -333,8 +353,9 @@ const NutritionFilter = () => {
   };
 
   const exportResultsCSV = () => {
+    const final = calcFiltered(appliedFilters);
     const headers = ["Name", "Calories", "Protein (g)", "Carbs (g)", "Fat (g)"];
-    const rows = results.map(item => [
+    const rows = final.map(item => [
       `"${(item.name || item.title || "").replace(/"/g, '""')}"`,
       getNutrient(item, "calories"),
       getNutrient(item, "protein"),
@@ -432,26 +453,26 @@ const NutritionFilter = () => {
 
             <div className="nf-row">
               <div className="nf-input-group">
-                <label>Max Calories</label>
+                <label>Min Calories</label>
                 <input 
                   type="number" 
-                  name="maxCalories" 
-                  value={filters.maxCalories} 
+                  name="minCalories" 
+                  value={filters.minCalories} 
                   onChange={handleChange} 
-                  placeholder="e.g. 600" 
+                  placeholder="e.g. 1230" 
                   min="0" 
                 />
                 <input 
                   className="nf-range" 
                   type="range" 
                   min="0" 
-                  max="2000" 
+                  max="3000" 
                   step="10" 
-                  value={filters.maxCalories || 600} 
-                  onChange={e => handleRangeChange("maxCalories", e.target.value)} 
+                  value={filters.minCalories || 1230} 
+                  onChange={e => handleRangeChange("minCalories", e.target.value)} 
                 />
-                <small className="nf-help">Max total calories per item</small>
-                {errors.maxCalories && <div className="nf-error">{errors.maxCalories}</div>}
+                <small className="nf-help">Minimum calories per item</small>
+                {errors.minCalories && <div className="nf-error">{errors.minCalories}</div>}
               </div>
 
               <div className="nf-input-group">
@@ -461,7 +482,7 @@ const NutritionFilter = () => {
                   name="minProtein" 
                   value={filters.minProtein} 
                   onChange={handleChange} 
-                  placeholder="e.g. 20" 
+                  placeholder="e.g. 73" 
                   min="0" 
                 />
                 <input 
@@ -470,7 +491,7 @@ const NutritionFilter = () => {
                   min="0" 
                   max="200" 
                   step="1" 
-                  value={filters.minProtein || 20} 
+                  value={filters.minProtein || 73} 
                   onChange={e => handleRangeChange("minProtein", e.target.value)} 
                 />
                 <small className="nf-help">Minimum protein per item</small>
@@ -486,7 +507,7 @@ const NutritionFilter = () => {
                   name="maxCarbs" 
                   value={filters.maxCarbs} 
                   onChange={handleChange} 
-                  placeholder="e.g. 40" 
+                  placeholder="e.g. 217" 
                   min="0" 
                 />
                 <input 
@@ -495,7 +516,7 @@ const NutritionFilter = () => {
                   min="0" 
                   max="400" 
                   step="1" 
-                  value={filters.maxCarbs || 40} 
+                  value={filters.maxCarbs || 217} 
                   onChange={e => handleRangeChange("maxCarbs", e.target.value)} 
                 />
                 <small className="nf-help">Upper limit for carbs</small>
@@ -509,7 +530,7 @@ const NutritionFilter = () => {
                   name="maxFat" 
                   value={filters.maxFat} 
                   onChange={handleChange} 
-                  placeholder="e.g. 20" 
+                  placeholder="e.g. 84" 
                   min="0" 
                 />
                 <input 
@@ -518,7 +539,7 @@ const NutritionFilter = () => {
                   min="0" 
                   max="200" 
                   step="1" 
-                  value={filters.maxFat || 20} 
+                  value={filters.maxFat || 84} 
                   onChange={e => handleRangeChange("maxFat", e.target.value)} 
                 />
                 <small className="nf-help">Upper limit for fat</small>
@@ -532,7 +553,11 @@ const NutritionFilter = () => {
                 onClick={() => applyFilters(filters)} 
                 disabled={isApplying}
               >
-                {isApplying ? "Applying..." : "Apply Filters"}
+                {isApplying ? (
+                  <span className="nf-loading">
+                    <span className="nf-spinner"></span> Applying...
+                  </span>
+                ) : "Apply Filters"}
               </button>
 
               <button
@@ -675,52 +700,62 @@ const NutritionFilter = () => {
         <aside className="nf-right">
           <div className="nf-section nf-summary">
             <h3>Live Summary</h3>
-            <p className="muted">{results.length} results</p>
+            <p className="muted">{filteredCount} results</p>
 
             <div className="nf-target-overview">
               <div className="nf-ov-row">
-                <div className="nf-ov-label">Calories</div>
-                <div className="nf-ov-value">{appliedFilters.maxCalories || "—"}</div>
-                <Progress 
-                  value={cartTotals.calories} 
-                  max={parseNum(appliedFilters.maxCalories) || Math.max(2000, cartTotals.calories)} 
-                />
+                <div className="nf-ov-label">Min Calories</div>
+                <div className="nf-ov-value">{appliedFilters.minCalories || "—"}</div>
               </div>
 
               <div className="nf-ov-row">
-                <div className="nf-ov-label">Protein</div>
-                <div className="nf-ov-value">{appliedFilters.minProtein || "—"} g</div>
-                <Progress 
-                  value={cartTotals.protein} 
-                  max={parseNum(appliedFilters.minProtein) || Math.max(100, cartTotals.protein)} 
-                />
+                <div className="nf-ov-label">Min Protein (g)</div>
+                <div className="nf-ov-value">{appliedFilters.minProtein || "—"}</div>
               </div>
 
               <div className="nf-ov-row">
-                <div className="nf-ov-label">Carbs</div>
-                <div className="nf-ov-value">{appliedFilters.maxCarbs || "—"} g</div>
-                <Progress 
-                  value={cartTotals.carbs} 
-                  max={parseNum(appliedFilters.maxCarbs) || Math.max(200, cartTotals.carbs)} 
-                />
+                <div className="nf-ov-label">Max Carbs (g)</div>
+                <div className="nf-ov-value">{appliedFilters.maxCarbs || "—"}</div>
               </div>
 
               <div className="nf-ov-row">
-                <div className="nf-ov-label">Fat</div>
-                <div className="nf-ov-value">{appliedFilters.maxFat || "—"} g</div>
-                <Progress 
-                  value={cartTotals.fat} 
-                  max={parseNum(appliedFilters.maxFat) || Math.max(100, cartTotals.fat)} 
-                />
+                <div className="nf-ov-label">Max Fat (g)</div>
+                <div className="nf-ov-value">{appliedFilters.maxFat || "—"}</div>
               </div>
             </div>
           </div>
 
           <div className="nf-section nf-suggestions">
             <h3>Top Matches</h3>
-            {topMatches.length === 0 ? (
-              <div className="nf-empty">No suggestions — tweak filters</div>
-            ) : (
+            
+            {filterStatus === "applying" && (
+              <div className="nf-loading-overlay">
+                <div className="nf-spinner"></div>
+                <p>Applying filters...</p>
+              </div>
+            )}
+            
+            {filterStatus === "error" && (
+              <div className="nf-error-message">
+                <strong>Error applying filters</strong>
+                <p>Please check your filter values and try again</p>
+              </div>
+            )}
+            
+            {filterStatus === "no-results" && (
+              <div className="nf-empty">
+                <p>No items match your current filters</p>
+                <small>Try adjusting your filter values</small>
+              </div>
+            )}
+            
+            {topMatches.length === 0 && filterStatus === "idle" && (
+              <div className="nf-empty">
+                <p>Apply filters to see matching items</p>
+              </div>
+            )}
+            
+            {topMatches.length > 0 && (
               <ul className="nf-suggest-list">
                 {topMatches.map(it => (
                   <li key={it._id || it.name} className="nf-suggest-item">
@@ -743,39 +778,6 @@ const NutritionFilter = () => {
                 ))}
               </ul>
             )}
-          </div>
-
-          <div className="nf-section nf-results">
-            <h3>Filtered Results</h3>
-            <div className="nf-results-list">
-              {results.length === 0 ? (
-                <div className="nf-empty">No items match</div>
-              ) : (
-                results.slice(0, 20).map(it => (
-                  <div key={it._id || it.name} className="nf-result-card">
-                    <div className="nf-result-left">
-                      <div className="nf-result-title">{it.name}</div>
-                      <div className="nf-result-nuts">
-                        <span>{getNutrient(it, "calories")} kcal</span>
-                        <span>{getNutrient(it, "protein")}g P</span>
-                        <span>{getNutrient(it, "carbs")}g C</span>
-                        <span>{getNutrient(it, "fat")}g F</span>
-                      </div>
-                    </div>
-                    <div className="nf-result-right">
-                      <div className="score-badge">{it.__matchScore || 0}</div>
-                      <button className="nf-btn small" onClick={() => handleAddToCart(it)}>
-                        Add
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div className="muted small" style={{ marginTop: 8 }}>
-              Showing top {Math.min(results.length, 20)} of {results.length}
-            </div>
           </div>
         </aside>
       </div>
