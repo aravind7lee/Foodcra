@@ -13,6 +13,7 @@ const Navbar = ({ setShowLogin }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const menuRef = useRef(null);
+  const navbarRef = useRef(null);
 
   const dropdown_toggle = (e) => {
     menuRef.current.classList.toggle('navbar-menu-visible');
@@ -25,6 +26,18 @@ const Navbar = ({ setShowLogin }) => {
       document.body.classList.add('dark-mode');
       setIsDarkMode(true);
     }
+    
+    // Close dropdown when clicking outside
+    const handleClickOutside = (e) => {
+      if (navbarRef.current && !navbarRef.current.contains(e.target)) {
+        menuRef.current.classList.remove('navbar-menu-visible');
+        const dropdown = document.querySelector('.nav_dropdown');
+        if (dropdown) dropdown.classList.remove('open');
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const toggleTheme = () => {
@@ -49,23 +62,20 @@ const Navbar = ({ setShowLogin }) => {
     setShowSearch(false);
   }, [menu]);
 
-  // Close search when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (showSearch && !e.target.closest('.expanded-searchbar-content')) {
-        setShowSearch(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showSearch]);
-
   return (
     <>
-      <div className='navbar'>
-        <Link to='/'><img className='logo' src={assets.logo} alt="" /></Link>
-        <img className="nav_dropdown" onClick={dropdown_toggle} src={nav_dropdown} alt="dropdown icon" />
+      <div className='navbar' ref={navbarRef}>
+        <Link to='/' className='logo-container'>
+          <img className='logo' src={assets.logo} alt="Cravezy" />
+        </Link>
+        
+        <img 
+          className="nav_dropdown" 
+          onClick={dropdown_toggle} 
+          src={nav_dropdown} 
+          alt="dropdown icon" 
+        />
+        
         <ul className="navbar-menu" ref={menuRef}>
           <Link to="/" onClick={() => setMenu("home")} className={`${menu === "home" ? "active" : ""}`}>HOME</Link>
           <Link to="/menu" onClick={() => setMenu("menu")} className={`${menu === "menu" ? "active" : ""}`}>MENU</Link>
@@ -73,11 +83,11 @@ const Navbar = ({ setShowLogin }) => {
           <Link to="/app-download" onClick={() => setMenu("app-download")} className={`${menu === "app-download" ? "active" : ""}`}>APP DOWNLOAD</Link>
           <a href='#footer' onClick={() => setMenu("contact")} className={`${menu === "contact" ? "active" : ""}`}>CONTACT US</a>
         </ul>
+        
         <div className="navbar-right">
-          {/* Search icon button */}
           <button 
             className="search-icon-button" 
-            onClick={() => setShowSearch(!showSearch)}
+            onClick={() => setShowSearch(true)}
             aria-label="Open search"
           >
             <img src={assets.search_icon} alt="Search" />
@@ -89,7 +99,7 @@ const Navbar = ({ setShowLogin }) => {
           </Link>
           
           {!token ? (
-            <button onClick={() => setShowLogin(true)}>sign in</button>
+            <button className="sign-in-btn" onClick={() => setShowLogin(true)}>sign in</button>
           ) : (
             <div className='navbar-profile'>
               <img src={assets.profile_icon} alt="Profile" />
@@ -105,7 +115,6 @@ const Navbar = ({ setShowLogin }) => {
             </div>
           )}
 
-          {/* Dark Mode Toggle Switch */}
           <label className="switch">
             <input type="checkbox" checked={isDarkMode} onChange={toggleTheme} />
             <span className="slider"></span>
@@ -113,7 +122,6 @@ const Navbar = ({ setShowLogin }) => {
         </div>
       </div>
       
-      {/* Expanded Search Bar */}
       {showSearch && (
         <SearchBar 
           isExpanded={showSearch} 
