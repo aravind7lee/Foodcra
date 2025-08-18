@@ -13,7 +13,7 @@
   --progress-light: linear-gradient(90deg, #ff9a8b 0%, #ff6b47 100%);
   
   /* Dark Theme */
-  --background-color-dark: #121826; 
+  --background-color-dark: linear-gradient(135deg, #444 0%, #444 100%);; 
   --card-background-dark: #1e293b;
   --text-color-dark: #e2e8f0;
   --border-dark: #334155;
