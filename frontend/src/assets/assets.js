@@ -103,6 +103,10 @@ export const assets = {
   Raj,
   shtit,
   ishow,
+  food_33,
+  food_34,
+  food_35,
+  food_36,
 };
 
 export const menu_list = [
