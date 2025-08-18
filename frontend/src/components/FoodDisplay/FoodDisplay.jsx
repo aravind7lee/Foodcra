@@ -17,12 +17,10 @@ const FoodDisplay = ({ category = "All" }) => {
   useEffect(() => {
     try {
       const hash = location.hash || "";
-      // location.key changes for new navigation events in react-router; guard to run once per navigation
       const locKey = location.key || `${location.pathname}${location.search}${location.hash}`;
       if (hash === "#food-display" && lastScrolledKeyRef.current !== locKey) {
         const el = document.getElementById("food-display");
         if (el) {
-          // slight delay to ensure rendering
           setTimeout(() => {
             try {
               el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -37,9 +35,7 @@ const FoodDisplay = ({ category = "All" }) => {
   }, [location]);
 
   const handleReset = () => {
-    // remove search query and go to menu anchor — this will show all items (StoreContext.resetSearch should be wired)
     navigate("/menu#food-display", { replace: true });
-    // Note: the search reset logic should also be triggered by the URL change (see StoreContext.applySearch/resetSearch)
   };
 
   return (
