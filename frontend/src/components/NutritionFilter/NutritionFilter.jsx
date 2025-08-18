@@ -725,60 +725,7 @@ const NutritionFilter = () => {
             </div>
           </div>
 
-          <div className="nf-section nf-suggestions">
-            <h3>Top Matches</h3>
-            
-            {filterStatus === "applying" && (
-              <div className="nf-loading-overlay">
-                <div className="nf-spinner"></div>
-                <p>Applying filters...</p>
-              </div>
-            )}
-            
-            {filterStatus === "error" && (
-              <div className="nf-error-message">
-                <strong>Error applying filters</strong>
-                <p>Please check your filter values and try again</p>
-              </div>
-            )}
-            
-            {filterStatus === "no-results" && (
-              <div className="nf-empty">
-                <p>No items match your current filters</p>
-                <small>Try adjusting your filter values</small>
-              </div>
-            )}
-            
-            {topMatches.length === 0 && filterStatus === "idle" && (
-              <div className="nf-empty">
-                <p>Apply filters to see matching items</p>
-              </div>
-            )}
-            
-            {topMatches.length > 0 && (
-              <ul className="nf-suggest-list">
-                {topMatches.map(it => (
-                  <li key={it._id || it.name} className="nf-suggest-item">
-                    <div>
-                      <div className="nf-suggest-title">{it.name}</div>
-                      <div className="nf-suggest-nut">
-                        <span>{getNutrient(it, "calories")} kcal</span>
-                        <span>{getNutrient(it, "protein")}g P</span>
-                        <span>{getNutrient(it, "carbs")}g C</span>
-                        <span>{getNutrient(it, "fat")}g F</span>
-                      </div>
-                    </div>
-                    <div className="nf-suggest-actions">
-                      <div className="score-badge">{Math.round(it.__matchScore || 0)}</div>
-                      <button className="nf-btn small" onClick={() => handleAddToCart(it)}>
-                        + Add
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          
         </aside>
       </div>
     </section>
