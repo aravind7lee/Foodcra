@@ -26,7 +26,7 @@
     max-width: 50%;
     bottom: 10%;
     left: 6vw;
-    z-index: 2;
+    z-index: 1;
     animation: slideInLeft 1.2s ease-out;
 }
 .header-contents h2{
