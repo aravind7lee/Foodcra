@@ -51,7 +51,8 @@ const CoinIcon = () => (
 );
 
 const ReferralLoyalty = () => {
-  const { loyaltyRewards, addReferralPoints } = useContext(StoreContext);
+  const { loyaltyPoints, addReferralPoints } = useContext(StoreContext);
+  const loyaltyRewards = Number(loyaltyPoints) || 0;
   const [referralEmail, setReferralEmail] = useState('');
   const [notification, setNotification] = useState({ message: '', type: '' });
   const [darkMode, setDarkMode] = useState(false);
@@ -229,7 +230,7 @@ const ReferralLoyalty = () => {
               
               <p className="redeem-info">
                 Redeem your points for discounts on future orders!
-                You need <span className="highlight">{500 - (loyaltyRewards % 500)}</span> more points for next reward.
+                You need <span className="highlight">{Math.max(0, 500 - (loyaltyRewards % 500))}</span> more points for next reward.
               </p>
             </div>
 
@@ -255,7 +256,7 @@ const ReferralLoyalty = () => {
                       className={`redeem-btn ${loyaltyRewards >= reward.points ? '' : 'disabled'}`}
                       onClick={() => redeemReward(reward)}
                     >
-                      {loyaltyRewards >= reward.points ? 'Redeem Now' : `Need ${reward.points - loyaltyRewards} more`}
+                      {loyaltyRewards >= reward.points ? 'Redeem Now' : `Need ${Math.max(0, reward.points - loyaltyRewards)} more`}
                     </button>
                   </div>
                 ))}

@@ -45,7 +45,14 @@ import food_29 from "./food_29.png";
 import food_30 from "./food_30.png";
 import food_31 from "./food_31.png";
 import food_32 from "./food_32.png";
-
+import food_33 from "./food_33.png";
+import food_34 from "./food_34.png";
+import food_35 from "./food_35.png";
+import food_36 from "./food_36.png";
+import food_37 from "./food_37.png";
+import food_38 from "./food_38.png";
+import food_39 from "./food_39.png";
+import food_40 from "./food_40.png";
 
 import add_icon_white from "./add_icon_white.png";
 import add_icon_green from "./add_icon_green.png";
@@ -102,6 +109,14 @@ export const assets = {
   shtit,
   ishow,
   menu_10,
+  food_33,
+  food_34,
+  food_35,
+  food_36,
+  food_37,
+  food_38,
+  food_39,
+  food_40,
 };
 
 export const menu_list = [
@@ -520,13 +535,13 @@ export const food_list = [
     carbs: 58,
     fat: 10,
   },
- {
+  {
     _id: "33",
     name: "BBQ Chicken",
-    image: "food_33.png",
+    image: food_33,
     price: 30,
     description: "Tender BBQ ribs with a smoky flavor.",
-    category: "Grill & BBQ", // exact match
+    category: "Grill & BBQ",
     calories: 600,
     protein: 35,
     carbs: 12,
@@ -535,10 +550,10 @@ export const food_list = [
   {
     _id: "34",
     name: "Spicy Chicken Wings",
-    image: "food_34.png",
+    image: food_34,
     price: 12,
     description: "Grilled tofu with a smoky BBQ sauce.",
-    category: "Grill & BBQ", // exact match
+    category: "Grill & BBQ",
     calories: 300,
     protein: 20,
     carbs: 15,
@@ -547,10 +562,10 @@ export const food_list = [
   {
     _id: "35",
     name: "Tandoori Chicken",
-    image: "food_35.png",
+    image: food_35,
     price: 22,
     description: "Juicy grilled chicken with BBQ sauce.",
-    category: "Grill & BBQ", // exact match
+    category: "Grill & BBQ",
     calories: 450,
     protein: 30,
     carbs: 10,
@@ -559,7 +574,7 @@ export const food_list = [
   {
     _id: "36",
     name: "Grilled Chicken",
-    image: "food_36.png",
+    image: food_36,
     price: 22,
     description: "Juicy grilled chicken with BBQ sauce.",
     category: "Grill & BBQ",
@@ -571,7 +586,7 @@ export const food_list = [
   {
     _id: "37",
     name: "Chicken Biryani",
-    image: "food_37.png",
+    image: food_37,
     price: 25,
     description: "Aromatic basmati rice with tender chicken pieces.",
     category: "Biryani",
@@ -583,7 +598,7 @@ export const food_list = [
   {
     _id: "38",
     name: "Mutton Biryani",
-    image: "food_38.png",
+    image: food_38,
     price: 30,
     description: "Rich and flavorful mutton biryani with spices.",
     category: "Biryani",
@@ -595,7 +610,7 @@ export const food_list = [
   {
     _id: "39",
     name: "Veg Biryani",
-    image: "food_39.png",
+    image: food_39,
     price: 20,
     description: "Fragrant vegetable biryani with mixed vegetables.",
     category: "Biryani",
@@ -607,7 +622,7 @@ export const food_list = [
   {
     _id: "40",
     name: "Prawn Biryani",
-    image: "food_40.png",
+    image: food_40,
     price: 28,
     description: "Delicious prawn biryani with coastal flavors.",
     category: "Biryani",

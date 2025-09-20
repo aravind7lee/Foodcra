@@ -17,3 +17,76 @@ export const assets ={
     parcel_icon
 }
 
+// Food categories for admin panel
+export const foodCategories = [
+    "Salad",
+    "Rolls", 
+    "Deserts",
+    "Sandwich",
+    "Cake",
+    "Pure Veg",
+    "Pasta",
+    "Noodles",
+    "Grill & BBQ",
+    "Biryani"
+];
+
+// Predefined food items with local images (food_33 to food_40)
+export const predefinedFoodItems = [
+    {
+        name: "BBQ Chicken",
+        category: "Grill & BBQ",
+        price: 30,
+        description: "Tender BBQ ribs with a smoky flavor.",
+        localImage: "food_33.png"
+    },
+    {
+        name: "Spicy Chicken Wings", 
+        category: "Grill & BBQ",
+        price: 12,
+        description: "Spicy grilled chicken wings with BBQ sauce.",
+        localImage: "food_34.png"
+    },
+    {
+        name: "Tandoori Chicken",
+        category: "Grill & BBQ", 
+        price: 22,
+        description: "Juicy tandoori chicken with Indian spices.",
+        localImage: "food_35.png"
+    },
+    {
+        name: "Grilled Chicken",
+        category: "Grill & BBQ",
+        price: 22, 
+        description: "Perfectly grilled chicken with BBQ sauce.",
+        localImage: "food_36.png"
+    },
+    {
+        name: "Chicken Biryani",
+        category: "Biryani",
+        price: 25,
+        description: "Aromatic basmati rice with tender chicken pieces.",
+        localImage: "food_37.png"
+    },
+    {
+        name: "Mutton Biryani",
+        category: "Biryani",
+        price: 30,
+        description: "Rich and flavorful mutton biryani with spices.",
+        localImage: "food_38.png"
+    },
+    {
+        name: "Veg Biryani", 
+        category: "Biryani",
+        price: 20,
+        description: "Fragrant vegetable biryani with mixed vegetables.",
+        localImage: "food_39.png"
+    },
+    {
+        name: "Prawn Biryani",
+        category: "Biryani",
+        price: 28,
+        description: "Delicious prawn biryani with coastal flavors.",
+        localImage: "food_40.png"
+    }
+];

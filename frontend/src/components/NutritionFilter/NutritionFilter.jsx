@@ -3,55 +3,16 @@ import { StoreContext } from "../../Context/StoreContext";
 import "./NutritionFilter.css";
 
 const DEFAULT_FILTERS = {
-  minCalories: 1230,
-  minProtein: 73,
-  maxCarbs: 217,
-  maxFat: 84,
+  minCalories: 100,
+  minProtein: 5,
+  maxCarbs: 100,
+  maxFat: 50,
 };
-
-const NUTRITION_DATA = [
-  { Name: "Greek Salad", Calories: 250, Protein: 5, Carbs: 10, Fat: 18 },
-  { Name: "Veg Salad", Calories: 200, Protein: 3, Carbs: 15, Fat: 12 },
-  { Name: "Clover Salad", Calories: 220, Protein: 4, Carbs: 12, Fat: 14 },
-  { Name: "Chicken Salad", Calories: 300, Protein: 25, Carbs: 6, Fat: 20 },
-  { Name: "Lasagna Rolls", Calories: 400, Protein: 15, Carbs: 45, Fat: 18 },
-  { Name: "Peri Peri Rolls", Calories: 350, Protein: 12, Carbs: 40, Fat: 15 },
-  { Name: "Chicken Rolls", Calories: 450, Protein: 20, Carbs: 40, Fat: 25 },
-  { Name: "Veg Rolls", Calories: 350, Protein: 10, Carbs: 45, Fat: 10 },
-  { Name: "Ripple Ice Cream", Calories: 200, Protein: 4, Carbs: 25, Fat: 12 },
-  { Name: "Fruit Ice Cream", Calories: 180, Protein: 3, Carbs: 22, Fat: 10 },
-  { Name: "Jar Ice Cream", Calories: 150, Protein: 3, Carbs: 20, Fat: 8 },
-  { Name: "Vanilla Ice Cream", Calories: 200, Protein: 4, Carbs: 24, Fat: 11 },
-  { Name: "Chicken Sandwich", Calories: 350, Protein: 25, Carbs: 30, Fat: 15 },
-  { Name: "Vegan Sandwich", Calories: 300, Protein: 12, Carbs: 45, Fat: 10 },
-  { Name: "Grilled Sandwich", Calories: 400, Protein: 20, Carbs: 50, Fat: 15 },
-  { Name: "Bread Sandwich", Calories: 280, Protein: 10, Carbs: 35, Fat: 12 },
-  { Name: "Cup Cake", Calories: 250, Protein: 4, Carbs: 30, Fat: 12 },
-  { Name: "Vegan Cake", Calories: 200, Protein: 5, Carbs: 35, Fat: 10 },
-  { Name: "Butterscotch Cake", Calories: 300, Protein: 5, Carbs: 40, Fat: 15 },
-  { Name: "Sliced Cake", Calories: 280, Protein: 4, Carbs: 38, Fat: 12 },
-  { Name: "Garlic Mushroom", Calories: 180, Protein: 5, Carbs: 8, Fat: 10 },
-  { Name: "Fried Cauliflower", Calories: 250, Protein: 6, Carbs: 15, Fat: 12 },
-  { Name: "Mix Veg Pulao", Calories: 220, Protein: 5, Carbs: 35, Fat: 8 },
-  { Name: "Rice Zucchini", Calories: 200, Protein: 4, Carbs: 30, Fat: 9 },
-  { Name: "Cheese Pasta", Calories: 400, Protein: 12, Carbs: 45, Fat: 20 },
-  { Name: "Tomato Pasta", Calories: 350, Protein: 10, Carbs: 50, Fat: 15 },
-  { Name: "Creamy Pasta", Calories: 450, Protein: 15, Carbs: 40, Fat: 25 },
-  { Name: "Chicken Pasta", Calories: 400, Protein: 10, Carbs: 48, Fat: 18 },
-  { Name: "Butter Noodles", Calories: 350, Protein: 8, Carbs: 55, Fat: 10 },
-  { Name: "Veg Noodles", Calories: 300, Protein: 7, Carbs: 50, Fat: 8 },
-  { Name: "Somen Noodles", Calories: 400, Protein: 10, Carbs: 60, Fat: 12 },
-  { Name: "Cooked Noodles", Calories: 320, Protein: 9, Carbs: 58, Fat: 10 },
-  { Name: "BBQ Chicken", Calories: 600, Protein: 35, Carbs: 12, Fat: 40 },
-  { Name: "Spicy Chicken Wings", Calories: 300, Protein: 20, Carbs: 15, Fat: 12 },
-  { Name: "Tandoori Chicken", Calories: 450, Protein: 30, Carbs: 10, Fat: 25 },
-  { Name: "Grilled Chicken", Calories: 450, Protein: 30, Carbs: 10, Fat: 25 },
-];
 
 const parseNum = (v) => {
   if (v === "" || v === null || v === undefined) return null;
   const n = Number(v);
-  return Number.isFinite(n) ? n : null;
+  return Number.isFinite(n) && n >= 0 ? n : null;
 };
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -65,7 +26,6 @@ const NutritionFilter = () => {
     removeFromCart,
   } = useContext(StoreContext) || {};
 
-  // Dark mode state with localStorage persistence
   const [darkMode, setDarkMode] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("nf_dark_mode")) || false;
@@ -90,7 +50,6 @@ const NutritionFilter = () => {
   const [appliedFilters, setAppliedFilters] = useState(DEFAULT_FILTERS);
   const [errors, setErrors] = useState({});
   const [live, setLive] = useState(true);
-  const [sortBy, setSortBy] = useState("match");
   const [filteredCount, setFilteredCount] = useState(0);
   const [topMatches, setTopMatches] = useState([]);
   const [presets, setPresets] = useState(() => {
@@ -101,47 +60,29 @@ const NutritionFilter = () => {
     }
   });
   const [isApplying, setIsApplying] = useState(false);
-  const [filterStatus, setFilterStatus] = useState("idle"); // idle, applying, success, error
 
   const debounceRef = useRef(null);
 
-  // Create nutrition map from the NUTRITION_DATA array
-  const nutritionMap = useMemo(() => {
-    const map = {};
-    NUTRITION_DATA.forEach(item => {
-      map[item.Name] = {
-        calories: item.Calories,
-        protein: item.Protein,
-        carbs: item.Carbs,
-        fat: item.Fat
-      };
-    });
-    return map;
-  }, []);
-
-  // Enhanced nutrient helper that uses nutritionMap
+  // Enhanced nutrient helper with proper fallbacks
   const getNutrient = (item, key) => {
     if (!item) return 0;
     
-    // First try to get from nutritionMap using item name
-    const nutrition = nutritionMap[item.name] || {};
-    if (nutrition[key] !== undefined) return nutrition[key];
-    
-    // Fallback to existing properties
-    if (typeof item[key] === "number") return item[key];
-    if (item.nutrition?.[key]) return item.nutrition[key];
-    if (item.nutrients?.[key]) return item.nutrients[key];
-    
+    // Direct property access with fallbacks
     switch(key) {
-      case "calories": return item.calories || item.kcal || item.energy || 0;
-      case "protein": return item.protein || item.protein_g || 0;
-      case "carbs": return item.carbs || item.carbohydrates || item.carbs_g || 0;
-      case "fat": return item.fat || item.fat_g || 0;
-      default: return 0;
+      case "calories": 
+        return Number(item.calories || item.kcal || item.energy || 0) || 0;
+      case "protein": 
+        return Number(item.protein || item.protein_g || 0) || 0;
+      case "carbs": 
+        return Number(item.carbs || item.carbohydrates || item.carbs_g || 0) || 0;
+      case "fat": 
+        return Number(item.fat || item.fat_g || 0) || 0;
+      default: 
+        return 0;
     }
   };
 
-  // Memoized cart totals
+  // Memoized cart totals with NaN protection
   const cartTotals = useMemo(() => {
     const totals = { calories: 0, protein: 0, carbs: 0, fat: 0, items: 0 };
     
@@ -160,11 +101,11 @@ const NutritionFilter = () => {
     }
     
     return {
-      calories: Math.round(totals.calories),
-      protein: Math.round(totals.protein),
-      carbs: Math.round(totals.carbs),
-      fat: Math.round(totals.fat),
-      items: totals.items
+      calories: Math.round(totals.calories) || 0,
+      protein: Math.round(totals.protein) || 0,
+      carbs: Math.round(totals.carbs) || 0,
+      fat: Math.round(totals.fat) || 0,
+      items: totals.items || 0
     };
   }, [cartItems, food_list]);
 
@@ -177,10 +118,6 @@ const NutritionFilter = () => {
         e[k] = "Invalid number";
       } else if (n < 0) {
         e[k] = "Cannot be negative";
-      } else if (k === "minCalories" && n < 100) {
-        e[k] = "Minimum calories too low";
-      } else if (k === "minProtein" && n < 5) {
-        e[k] = "Minimum protein too low";
       }
     }
     return e;
@@ -214,45 +151,21 @@ const NutritionFilter = () => {
     const carbs = getNutrient(item, "carbs");
     const fat = getNutrient(item, "fat");
 
-    // Apply constraints for each nutrient
-    const applyConstraint = (value, target, penalty, bonus, isMin = false) => {
-      if (target === "" || target === null) return;
-      const numTarget = Number(target);
-      
-      if (isMin) {
-        // Minimum constraint (like calories and protein)
-        if (value < numTarget) {
-          score -= clamp(((numTarget - value) / Math.max(1, numTarget)) * penalty, 0, penalty);
-        } else {
-          score += clamp(((value - numTarget) / Math.max(1, numTarget)) * bonus, 0, bonus);
-        }
-      } else {
-        // Maximum constraint (like carbs and fat)
-        if (value > numTarget) {
-          score -= clamp(((value - numTarget) / Math.max(1, numTarget)) * penalty, 0, penalty);
-        } else {
-          score += clamp(((numTarget - value) / Math.max(1, numTarget)) * bonus, 0, bonus);
-        }
-      }
-    };
+    // Simple scoring based on meeting criteria
+    const minCal = parseNum(flts.minCalories);
+    const minProt = parseNum(flts.minProtein);
+    const maxCarbs = parseNum(flts.maxCarbs);
+    const maxFat = parseNum(flts.maxFat);
 
-    // Apply constraints with appropriate parameters
-    applyConstraint(cal, flts.minCalories, 60, 5, true);
-    applyConstraint(prot, flts.minProtein, 50, 10, true);
-    applyConstraint(carbs, flts.maxCarbs, 30, 3);
-    applyConstraint(fat, flts.maxFat, 20, 2);
+    if (minCal && cal < minCal) score -= 20;
+    if (minProt && prot < minProt) score -= 20;
+    if (maxCarbs && carbs > maxCarbs) score -= 20;
+    if (maxFat && fat > maxFat) score -= 20;
     
-    return Math.round(clamp(score, 0, 100));
+    return Math.max(0, score);
   };
 
   const calcFiltered = (flts) => {
-    const parsed = {
-      minCalories: parseNum(flts.minCalories),
-      minProtein: parseNum(flts.minProtein),
-      maxCarbs: parseNum(flts.maxCarbs),
-      maxFat: parseNum(flts.maxFat),
-    };
-
     let list = [...food_list];
     
     list = filterItems(list, flts);
@@ -262,7 +175,6 @@ const NutritionFilter = () => {
       __matchScore: scoreItem(it, flts)
     }));
 
-    // Sort by match score by default
     withScore.sort((a, b) => b.__matchScore - a.__matchScore);
 
     return withScore;
@@ -270,7 +182,6 @@ const NutritionFilter = () => {
 
   const applyFilters = (flts = filters) => {
     setIsApplying(true);
-    setFilterStatus("applying");
     const e = validate(flts);
     setErrors(e);
     
@@ -287,17 +198,9 @@ const NutritionFilter = () => {
         
         setTopMatches(final.slice(0, 8));
         setAppliedFilters(flts);
-        setFilterStatus(final.length > 0 ? "success" : "no-results");
-        
-        // Log for debugging
-        console.log("Applied filters:", flts);
-        console.log("Top matches:", final.slice(0, 8).map(i => i.name));
       } catch (error) {
         console.error("Filtering error:", error);
-        setFilterStatus("error");
       }
-    } else {
-      setFilterStatus("error");
     }
     
     setIsApplying(false);
@@ -310,7 +213,7 @@ const NutritionFilter = () => {
       debounceRef.current = setTimeout(() => applyFilters(filters), 320);
       return () => clearTimeout(debounceRef.current);
     }
-  }, [filters, sortBy, food_list, live]);
+  }, [filters, food_list, live]);
 
   useEffect(() => {
     applyFilters(filters);
@@ -352,61 +255,6 @@ const NutritionFilter = () => {
     removeFromCart?.(String(product._id));
   };
 
-  const exportResultsCSV = () => {
-    const final = calcFiltered(appliedFilters);
-    const headers = ["Name", "Calories", "Protein (g)", "Carbs (g)", "Fat (g)"];
-    const rows = final.map(item => [
-      `"${(item.name || item.title || "").replace(/"/g, '""')}"`,
-      getNutrient(item, "calories"),
-      getNutrient(item, "protein"),
-      getNutrient(item, "carbs"),
-      getNutrient(item, "fat")
-    ]);
-    
-    exportCSV("nutrition_results", headers, rows);
-  };
-
-  const exportCartCSV = () => {
-    const headers = ["Name", "Quantity", "Calories", "Protein (g)", "Carbs (g)", "Fat (g)"];
-    const rows = [];
-    
-    // Add individual items
-    for (const [id, qty] of Object.entries(cartItems)) {
-      const product = food_list.find(p => String(p._id) === String(id));
-      if (!product) continue;
-      
-      rows.push([
-        `"${(product.name || product.title || "").replace(/"/g, '""')}"`,
-        qty,
-        getNutrient(product, "calories") * qty,
-        getNutrient(product, "protein") * qty,
-        getNutrient(product, "carbs") * qty,
-        getNutrient(product, "fat") * qty
-      ]);
-    }
-    
-    // Add totals row
-    rows.push([]); // Empty row
-    rows.push(["TOTALS", cartTotals.items, cartTotals.calories, cartTotals.protein, cartTotals.carbs, cartTotals.fat]);
-    
-    exportCSV("nutrition_cart", headers, rows);
-  };
-
-  const exportCSV = (prefix, headers, rows) => {
-    const csvContent = [
-      headers.join(","),
-      ...rows.map(row => row.join(","))
-    ].join("\n");
-    
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${prefix}_${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   const Progress = ({ value = 0, max = 100 }) => {
     const pct = max > 0 ? clamp((value / max) * 100, 0, 100) : 0;
     return (
@@ -433,16 +281,6 @@ const NutritionFilter = () => {
           <label className="nf-live-toggle" title="Toggle live filtering">
             <input type="checkbox" checked={live} onChange={() => setLive(s => !s)} /> Live
           </label>
-
-          <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
-            <option value="match">Best Match</option>
-            <option value="calories">Calories (asc)</option>
-            <option value="protein">Protein (desc)</option>
-          </select>
-
-          <button className="nf-btn ghost" onClick={exportResultsCSV}>
-            Export Results CSV
-          </button>
         </div>
       </div>
 
@@ -459,16 +297,16 @@ const NutritionFilter = () => {
                   name="minCalories" 
                   value={filters.minCalories} 
                   onChange={handleChange} 
-                  placeholder="e.g. 1230" 
+                  placeholder="e.g. 100" 
                   min="0" 
                 />
                 <input 
                   className="nf-range" 
                   type="range" 
                   min="0" 
-                  max="3000" 
+                  max="1000" 
                   step="10" 
-                  value={filters.minCalories || 1230} 
+                  value={filters.minCalories || 100} 
                   onChange={e => handleRangeChange("minCalories", e.target.value)} 
                 />
                 <small className="nf-help">Minimum calories per item</small>
@@ -482,16 +320,16 @@ const NutritionFilter = () => {
                   name="minProtein" 
                   value={filters.minProtein} 
                   onChange={handleChange} 
-                  placeholder="e.g. 73" 
+                  placeholder="e.g. 5" 
                   min="0" 
                 />
                 <input 
                   className="nf-range" 
                   type="range" 
                   min="0" 
-                  max="200" 
+                  max="50" 
                   step="1" 
-                  value={filters.minProtein || 73} 
+                  value={filters.minProtein || 5} 
                   onChange={e => handleRangeChange("minProtein", e.target.value)} 
                 />
                 <small className="nf-help">Minimum protein per item</small>
@@ -507,16 +345,16 @@ const NutritionFilter = () => {
                   name="maxCarbs" 
                   value={filters.maxCarbs} 
                   onChange={handleChange} 
-                  placeholder="e.g. 217" 
+                  placeholder="e.g. 100" 
                   min="0" 
                 />
                 <input 
                   className="nf-range" 
                   type="range" 
                   min="0" 
-                  max="400" 
+                  max="200" 
                   step="1" 
-                  value={filters.maxCarbs || 217} 
+                  value={filters.maxCarbs || 100} 
                   onChange={e => handleRangeChange("maxCarbs", e.target.value)} 
                 />
                 <small className="nf-help">Upper limit for carbs</small>
@@ -530,16 +368,16 @@ const NutritionFilter = () => {
                   name="maxFat" 
                   value={filters.maxFat} 
                   onChange={handleChange} 
-                  placeholder="e.g. 84" 
+                  placeholder="e.g. 50" 
                   min="0" 
                 />
                 <input 
                   className="nf-range" 
                   type="range" 
                   min="0" 
-                  max="200" 
+                  max="100" 
                   step="1" 
-                  value={filters.maxFat || 84} 
+                  value={filters.maxFat || 50} 
                   onChange={e => handleRangeChange("maxFat", e.target.value)} 
                 />
                 <small className="nf-help">Upper limit for fat</small>
@@ -619,10 +457,10 @@ const NutritionFilter = () => {
                         <div className="nf-cart-meta">
                           <div className="nf-cart-title">{product.name || product.title}</div>
                           <div className="nf-cart-nuts">
-                            <span>{getNutrient(product, "calories") * qty} kcal</span>
-                            <span>{getNutrient(product, "protein") * qty}g P</span>
-                            <span>{getNutrient(product, "carbs") * qty}g C</span>
-                            <span>{getNutrient(product, "fat") * qty}g F</span>
+                            <span>{(getNutrient(product, "calories") * qty) || 0} kcal</span>
+                            <span>{(getNutrient(product, "protein") * qty) || 0}g P</span>
+                            <span>{(getNutrient(product, "carbs") * qty) || 0}g C</span>
+                            <span>{(getNutrient(product, "fat") * qty) || 0}g F</span>
                           </div>
                         </div>
 
@@ -685,12 +523,6 @@ const NutritionFilter = () => {
                       </div>
                     </div>
                   </div>
-
-                  <div className="nf-actions" style={{ marginTop: 10 }}>
-                    <button className="nf-btn" onClick={exportCartCSV}>
-                      Export Cart CSV
-                    </button>
-                  </div>
                 </div>
               </>
             )}
@@ -736,31 +568,31 @@ const NutritionFilter = () => {
               {(() => {
                 const filtered = calcFiltered(appliedFilters);
                 const totals = {
-                  calories: filtered.reduce((sum, item) => sum + getNutrient(item, "calories"), 0),
-                  protein: filtered.reduce((sum, item) => sum + getNutrient(item, "protein"), 0),
-                  carbs: filtered.reduce((sum, item) => sum + getNutrient(item, "carbs"), 0),
-                  fat: filtered.reduce((sum, item) => sum + getNutrient(item, "fat"), 0)
+                  calories: filtered.reduce((sum, item) => sum + (getNutrient(item, "calories") || 0), 0),
+                  protein: filtered.reduce((sum, item) => sum + (getNutrient(item, "protein") || 0), 0),
+                  carbs: filtered.reduce((sum, item) => sum + (getNutrient(item, "carbs") || 0), 0),
+                  fat: filtered.reduce((sum, item) => sum + (getNutrient(item, "fat") || 0), 0)
                 };
                 
                 return (
                   <>
                     <div className="nf-result-stat">
-                      <div className="nf-stat-number">{Math.round(totals.calories)}</div>
+                      <div className="nf-stat-number">{Math.round(totals.calories) || 0}</div>
                       <div className="nf-stat-label">Total Calories</div>
                     </div>
                     
                     <div className="nf-result-stat">
-                      <div className="nf-stat-number">{Math.round(totals.protein)}g</div>
+                      <div className="nf-stat-number">{Math.round(totals.protein) || 0}g</div>
                       <div className="nf-stat-label">Total Protein</div>
                     </div>
                     
                     <div className="nf-result-stat">
-                      <div className="nf-stat-number">{Math.round(totals.carbs)}g</div>
+                      <div className="nf-stat-number">{Math.round(totals.carbs) || 0}g</div>
                       <div className="nf-stat-label">Total Carbs</div>
                     </div>
                     
                     <div className="nf-result-stat">
-                      <div className="nf-stat-number">{Math.round(totals.fat)}g</div>
+                      <div className="nf-stat-number">{Math.round(totals.fat) || 0}g</div>
                       <div className="nf-stat-label">Total Fat</div>
                     </div>
                   </>
@@ -776,11 +608,11 @@ const NutritionFilter = () => {
                     <div key={item._id || idx} className="nf-match-item">
                       <div className="nf-match-name">{item.name}</div>
                       <div className="nf-match-nutrients">
-                        <span>{getNutrient(item, "calories")} cal</span>
-                        <span>{getNutrient(item, "protein")}g P</span>
-                        <span>{getNutrient(item, "carbs")}g C</span>
-                        <span>{getNutrient(item, "fat")}g F</span>
-                        <span className="nf-match-score">{item.__matchScore}%</span>
+                        <span>{getNutrient(item, "calories") || 0} cal</span>
+                        <span>{getNutrient(item, "protein") || 0}g P</span>
+                        <span>{getNutrient(item, "carbs") || 0}g C</span>
+                        <span>{getNutrient(item, "fat") || 0}g F</span>
+                        <span className="nf-match-score">{item.__matchScore || 0}%</span>
                       </div>
                     </div>
                   ))}
@@ -788,8 +620,6 @@ const NutritionFilter = () => {
               </div>
             )}
           </div>
-
-          
         </aside>
       </div>
     </section>

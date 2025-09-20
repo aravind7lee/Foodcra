@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import './Add.css';
-import { assets, url } from '../../assets/assets';
+import { assets, url, foodCategories, predefinedFoodItems } from '../../assets/assets';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const Add = () => {
-
     const [image, setImage] = useState(false);
     const [data, setData] = useState({
         name: "",
@@ -13,6 +12,7 @@ const Add = () => {
         price: "",
         category: "Salad"
     });
+    const [showPredefined, setShowPredefined] = useState(false);
 
     const onSubmitHandler = async (event) => {
         event.preventDefault();
@@ -53,8 +53,54 @@ const Add = () => {
         setData(prevData => ({ ...prevData, [name]: value }));
     }
 
+    const loadPredefinedItem = (item) => {
+        setData({
+            name: item.name,
+            description: item.description,
+            price: item.price.toString(),
+            category: item.category
+        });
+        
+        // Create a fake file object for the predefined image
+        const fakeFile = new File([''], item.localImage, { type: 'image/png' });
+        setImage(fakeFile);
+        
+        toast.success(`Loaded ${item.name} - Upload this to add to menu!`);
+        setShowPredefined(false);
+    }
+
     return (
         <div className='add'>
+            <div className="predefined-section">
+                <button 
+                    className="predefined-toggle"
+                    onClick={() => setShowPredefined(!showPredefined)}
+                >
+                    {showPredefined ? 'Hide' : 'Show'} Quick Add Items (food_33-40)
+                </button>
+                
+                {showPredefined && (
+                    <div className="predefined-items">
+                        <h3>Quick Add Predefined Items</h3>
+                        <div className="predefined-grid">
+                            {predefinedFoodItems.map((item, index) => (
+                                <div key={index} className="predefined-item">
+                                    <h4>{item.name}</h4>
+                                    <p>{item.category}</p>
+                                    <p>₹{item.price}</p>
+                                    <button 
+                                        onClick={() => loadPredefinedItem(item)}
+                                        className="load-btn"
+                                    >
+                                        Load Item
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+
             <form className='flex-col' onSubmit={onSubmitHandler}>
                 <div className='add-img-upload flex-col'>
                     <p>Upload image</p>
@@ -99,16 +145,9 @@ const Add = () => {
                     <div className='add-category flex-col'>
                         <p>Product category</p>
                         <select name='category' onChange={onChangeHandler} value={data.category}>
-                            <option value="Salad">Salad</option>
-                            <option value="Rolls">Rolls</option>
-                            <option value="Deserts">Deserts</option>
-                            <option value="Sandwich">Sandwich</option>
-                            <option value="Cake">Cake</option>
-                            <option value="Pure Veg">Pure Veg</option>
-                            <option value="Pasta">Pasta</option>
-                            <option value="Noodles">Noodles</option>
-                            <option value="Grill & BBQ">Grill & BBQ</option>
-                            <option value="Biryani">Biryani</option> {/* Biryani option added */}
+                            {foodCategories.map((category, index) => (
+                                <option key={index} value={category}>{category}</option>
+                            ))}
                         </select>
                     </div>
                     <div className='add-price flex-col'>
