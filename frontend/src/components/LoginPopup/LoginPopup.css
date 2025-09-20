@@ -20,7 +20,13 @@
     border-radius: 8px;
     font-size: 14px;
     animation: fadeIn 0.5s;
-    margin-top: 170px;
+}
+@media(max-width:750px){
+    .login-popup-container{
+        width: 90%;
+        max-width: 350px;
+        margin: 20px;
+    }
 }
 .login-popup-title{
     display: flex;
