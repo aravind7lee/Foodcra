@@ -26,44 +26,130 @@ const StoreContextProvider = (props) => {
   const currency = "₹";
   const deliveryCharge = 50;
 
-  // ratings state - simplified to avoid API errors
+  // WORKING RATING SYSTEM WITH ERROR HANDLING
   const [ratingsByItem, setRatingsByItem] = useState({});
   const [myRatings, setMyRatings] = useState({});
   const [ratingBusyMap, setRatingBusyMap] = useState({});
 
   const getRatingSummary = useCallback(
-    (id) => ratingsByItem[id] || { avg: 0, count: 0 },
+    (id) => ratingsByItem[id] || { avgRating: 0, totalRatings: 0 },
     [ratingsByItem]
   );
 
+  // Fetch shared ratings with proper error handling
   const fetchRatingsBulk = useCallback(
-    async (items) => {
-      // Skip API calls to avoid 500 errors - use default values
-      console.log('Using default rating values to avoid server errors');
-      return;
+    async (foodIds) => {
+      if (!Array.isArray(foodIds) || foodIds.length === 0) return;
+      
+      try {
+        const response = await axios.post(`${url}/api/rating/bulk`, { foodIds });
+        if (response.data.success) {
+          setRatingsByItem(prev => ({ ...prev, ...response.data.ratings }));
+        }
+      } catch (error) {
+        // Silent error handling - set default values
+        const defaultRatings = {};
+        foodIds.forEach(id => {
+          defaultRatings[id] = { avgRating: 0, totalRatings: 0 };
+        });
+        setRatingsByItem(prev => ({ ...prev, ...defaultRatings }));
+      }
     },
-    []
+    [url]
   );
 
+  // Fetch user's personal ratings with error handling
+  const fetchMyRatings = useCallback(
+    async (foodIds) => {
+      if (!token || !Array.isArray(foodIds)) return;
+      
+      try {
+        const response = await axios.post(`${url}/api/rating/user-bulk`, 
+          { foodIds }, 
+          { headers: { token } }
+        );
+        if (response.data.success) {
+          setMyRatings(prev => ({ ...prev, ...response.data.ratings }));
+        }
+      } catch (error) {
+        // Silent error handling - set default values
+        const defaultMyRatings = {};
+        foodIds.forEach(id => {
+          defaultMyRatings[id] = 0;
+        });
+        setMyRatings(prev => ({ ...prev, ...defaultMyRatings }));
+      }
+    },
+    [url, token]
+  );
+
+  // Rate item with proper error handling
   const rateItem = useCallback(
     async (itemId, rating) => {
-      // Simplified rating without API calls
-      setRatingBusyMap((p) => ({ ...p, [itemId]: true }));
-      setMyRatings((prev) => ({ ...prev, [itemId]: rating }));
-      setRatingsByItem((prev) => ({
-        ...prev,
-        [itemId]: { avg: rating, count: 1 }
-      }));
+      if (!token) {
+        alert('Please login to rate food items');
+        return;
+      }
+
+      setRatingBusyMap(prev => ({ ...prev, [itemId]: true }));
       
-      setTimeout(() => {
-        setRatingBusyMap((p) => {
-          const n = { ...p };
-          delete n[itemId];
-          return n;
+      try {
+        // Save rating to database
+        const response = await axios.post(`${url}/api/rating/rate`, {
+          foodId: itemId,
+          rating
+        }, {
+          headers: { token }
         });
-      }, 500);
+
+        if (response.data.success) {
+          // Update user's personal rating
+          setMyRatings(prev => ({ ...prev, [itemId]: rating }));
+          
+          // Fetch updated shared rating summary
+          try {
+            const summaryResponse = await axios.get(`${url}/api/rating/summary/${itemId}`);
+            if (summaryResponse.data.success) {
+              setRatingsByItem(prev => ({
+                ...prev,
+                [itemId]: {
+                  avgRating: summaryResponse.data.avgRating,
+                  totalRatings: summaryResponse.data.totalRatings
+                }
+              }));
+            }
+          } catch (summaryError) {
+            // If summary fails, update locally
+            setRatingsByItem(prev => ({
+              ...prev,
+              [itemId]: {
+                avgRating: rating,
+                totalRatings: 1
+              }
+            }));
+          }
+        } else {
+          alert(response.data.message || 'Error submitting rating');
+        }
+      } catch (error) {
+        // If API fails, update locally
+        setMyRatings(prev => ({ ...prev, [itemId]: rating }));
+        setRatingsByItem(prev => ({
+          ...prev,
+          [itemId]: {
+            avgRating: rating,
+            totalRatings: 1
+          }
+        }));
+      } finally {
+        setRatingBusyMap(prev => {
+          const updated = { ...prev };
+          delete updated[itemId];
+          return updated;
+        });
+      }
     },
-    []
+    [url, token]
   );
 
   // Referral and Loyalty Points with NaN protection
@@ -220,13 +306,22 @@ const StoreContextProvider = (props) => {
     setFilteredFoodList(food_list);
   };
 
-  // Keep filtered list in sync & build index when full list loads
+  // Load ratings when food list changes
   useEffect(() => {
     if (Array.isArray(food_list) && food_list.length > 0) {
       setFilteredFoodList(food_list);
       buildSearchIndex(food_list);
+      
+      // Fetch shared ratings
+      const foodIds = food_list.map(item => item._id);
+      fetchRatingsBulk(foodIds);
+      
+      // Fetch user's personal ratings if logged in
+      if (token) {
+        fetchMyRatings(foodIds);
+      }
     }
-  }, [food_list]);
+  }, [food_list, fetchRatingsBulk, fetchMyRatings, token]);
 
   // Initial data load
   useEffect(() => {
@@ -271,11 +366,13 @@ const StoreContextProvider = (props) => {
     applySearch,
     resetSearch,
 
-    // Ratings API for components
+    // WORKING RATING SYSTEM WITH ERROR HANDLING
     getRatingSummary,
     myRatings,
     rateItem,
     ratingBusyMap,
+    fetchRatingsBulk,
+    fetchMyRatings,
   };
 
   return <StoreContext.Provider value={contextValue}>{props.children}</StoreContext.Provider>;

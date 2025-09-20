@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import fs from "fs";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { connectDB } from "./config/db.js";
@@ -24,6 +25,7 @@ connectDB();
 // api endpoints
 app.use("/api/user", userRouter);
 app.use("/api/food", foodRouter);
+// Serve images from uploads folder
 app.use("/images", express.static("uploads"));
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);

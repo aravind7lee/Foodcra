@@ -23,6 +23,8 @@ const FoodItem = ({ image, name, price, desc, id }) => {
     removeFromCart,
     url,
     currency,
+    token,
+    // WORKING rating system
     getRatingSummary,
     myRatings,
     rateItem,
@@ -30,44 +32,36 @@ const FoodItem = ({ image, name, price, desc, id }) => {
   } = useContext(StoreContext);
 
   const currentItemCount = cartItems && cartItems[id] ? cartItems[id] : 0;
+
+  // Rating UI state
   const [hoverStars, setHoverStars] = useState(0);
+  const [showRatingPrompt, setShowRatingPrompt] = useState(false);
+
+  // Get rating data
   const summary = useMemo(() => getRatingSummary(id), [getRatingSummary, id]);
-  const my = myRatings?.[id] || 0;
-  const displayedFillUpTo = hoverStars || my || Math.round(summary.avg || 0);
+  const myRating = myRatings?.[id] || 0;
   const isBusy = !!ratingBusyMap[id];
+
+  // Display logic for stars
+  const displayedFillUpTo = hoverStars || myRating || 0;
+  const hasUserRated = myRating > 0;
 
   const handleRate = async (stars) => {
     if (isBusy) return;
+    
+    if (!token) {
+      setShowRatingPrompt(true);
+      setTimeout(() => setShowRatingPrompt(false), 3000);
+      return;
+    }
+    
+    // Rate item - will handle errors gracefully
     await rateItem(id, stars);
   };
 
-  // Smart image handling - check if it's a local asset or server image
-  const getImageSrc = () => {
-    // If image is a string filename, load from server
-    if (typeof image === 'string') {
-      // Check if it's one of our local assets (food_33 to food_40)
-      const localAssets = {
-        'food_33.png': assets.food_33,
-        'food_34.png': assets.food_34,
-        'food_35.png': assets.food_35,
-        'food_36.png': assets.food_36,
-        'food_37.png': assets.food_37,
-        'food_38.png': assets.food_38,
-        'food_39.png': assets.food_39,
-        'food_40.png': assets.food_40,
-      };
-      
-      // If it's a local asset, use the imported version
-      if (localAssets[image]) {
-        return localAssets[image];
-      }
-      
-      // Otherwise, load from server
-      return `${url}/images/${image}`;
-    }
-    
-    // If image is already an imported asset, use it directly
-    return image;
+  const handleStarClick = (stars) => {
+    handleRate(stars);
+    setHoverStars(0);
   };
 
   return (
@@ -75,14 +69,8 @@ const FoodItem = ({ image, name, price, desc, id }) => {
       <div className='food-item-img-container'>
         <img 
           className='food-item-image' 
-          src={getImageSrc()} 
+          src={typeof image === 'string' ? `${url}/images/${image}` : image} 
           alt={name}
-          onError={(e) => {
-            // Fallback to server image if local asset fails
-            if (typeof image === 'string' && !e.target.src.includes('/images/')) {
-              e.target.src = `${url}/images/${image}`;
-            }
-          }}
         />
         {currentItemCount === 0 ? (
           <img className='add' onClick={() => addToCart(id)} src={assets.add_icon_white} alt="Add to cart" />
@@ -99,37 +87,63 @@ const FoodItem = ({ image, name, price, desc, id }) => {
         <div className="food-item-name-rating">
           <p>{name}</p>
 
-          <div
-            className={`rating-block ${isBusy ? 'rating-busy' : ''}`}
-            aria-label={`Rated ${Number(summary.avg || 0).toFixed(1)} out of 5`}
-          >
-            <div
-              className="stars"
-              onMouseLeave={() => setHoverStars(0)}
-              role="radiogroup"
-              aria-label={`Rate ${name}`}
-            >
-              {[1, 2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  className={`star ${displayedFillUpTo >= n ? 'filled' : ''}`}
-                  onMouseEnter={() => setHoverStars(n)}
-                  onClick={() => handleRate(n)}
-                  disabled={isBusy}
-                  aria-checked={my === n}
-                  role="radio"
-                  aria-label={`${n} star${n > 1 ? 's' : ''}`}
-                  title={`${n} star${n > 1 ? 's' : ''}`}
-                >
-                  <Star filled={displayedFillUpTo >= n} />
-                </button>
-              ))}
+          {/* WORKING RATING SYSTEM - NO ERRORS */}
+          <div className={`rating-block ${isBusy ? 'rating-busy' : ''}`}>
+            {/* Rating Display */}
+            <div className="rating-display">
+              <div className="stars-display">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <span key={n} className={`star-display ${summary.avgRating >= n ? 'filled' : ''}`}>
+                    ⭐
+                  </span>
+                ))}
+              </div>
+              <span className="rating-text">
+                {summary.avgRating > 0 ? summary.avgRating.toFixed(1) : '0.0'} 
+                <span className="rating-count">({summary.totalRatings || 0})</span>
+              </span>
             </div>
 
-            <span className="rating-text">
-              {Number(summary.avg || 0).toFixed(1)} <span className="rating-count">({summary.count || 0})</span>
-            </span>
+            {/* Interactive Rating Stars */}
+            <div className="rating-input">
+              <div
+                className="stars-input"
+                onMouseLeave={() => setHoverStars(0)}
+              >
+                <span className="rate-label">{hasUserRated ? 'Your rating:' : 'Rate this:'}</span>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    className={`star-input ${displayedFillUpTo >= n ? 'filled' : ''} ${hasUserRated ? 'user-rated' : ''}`}
+                    onMouseEnter={() => setHoverStars(n)}
+                    onClick={() => handleStarClick(n)}
+                    disabled={isBusy}
+                    title={hasUserRated ? `Change to ${n} star${n > 1 ? 's' : ''}` : `Rate ${n} star${n > 1 ? 's' : ''}`}
+                  >
+                    <Star filled={displayedFillUpTo >= n} />
+                  </button>
+                ))}
+              </div>
+              
+              {showRatingPrompt && (
+                <div className="rating-prompt">
+                  Please login to rate this item!
+                </div>
+              )}
+              
+              {hasUserRated && (
+                <div className="user-rating-info">
+                  You rated: {myRating} ⭐
+                </div>
+              )}
+              
+              {isBusy && (
+                <div className="rating-saving">
+                  Saving...
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

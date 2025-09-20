@@ -15,16 +15,7 @@ const listFood = async (req, res) => {
 // add food
 const addFood = async (req, res) => {
     try {
-        let image_filename;
-        
-        // Handle predefined images (food_33 to food_40)
-        if (req.body.imageFilename) {
-            image_filename = req.body.imageFilename;
-        } else if (req.file) {
-            image_filename = req.file.filename;
-        } else {
-            return res.json({ success: false, message: "No image provided" });
-        }
+        let image_filename = `${Date.now()}${req.file.originalname}`;
 
         const food = new foodModel({
             name: req.body.name,
@@ -46,11 +37,7 @@ const addFood = async (req, res) => {
 const removeFood = async (req, res) => {
     try {
         const food = await foodModel.findById(req.body.id);
-        
-        // Only try to delete file if it's not a predefined image
-        if (food.image && !food.image.startsWith('food_3') && !food.image.startsWith('food_4')) {
-            fs.unlink(`uploads/${food.image}`, () => { })
-        }
+        fs.unlink(`uploads/${food.image}`, () => { })
 
         await foodModel.findByIdAndDelete(req.body.id)
         res.json({ success: true, message: "Food Removed" })
