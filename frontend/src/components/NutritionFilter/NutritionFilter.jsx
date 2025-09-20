@@ -725,6 +725,70 @@ const NutritionFilter = () => {
             </div>
           </div>
 
+          <div className="nf-section nf-results">
+            <h3>Real-time Calculation Results</h3>
+            <div className="nf-results-summary">
+              <div className="nf-result-stat">
+                <div className="nf-stat-number">{filteredCount}</div>
+                <div className="nf-stat-label">Total Food Items</div>
+              </div>
+              
+              {(() => {
+                const filtered = calcFiltered(appliedFilters);
+                const totals = {
+                  calories: filtered.reduce((sum, item) => sum + getNutrient(item, "calories"), 0),
+                  protein: filtered.reduce((sum, item) => sum + getNutrient(item, "protein"), 0),
+                  carbs: filtered.reduce((sum, item) => sum + getNutrient(item, "carbs"), 0),
+                  fat: filtered.reduce((sum, item) => sum + getNutrient(item, "fat"), 0)
+                };
+                
+                return (
+                  <>
+                    <div className="nf-result-stat">
+                      <div className="nf-stat-number">{Math.round(totals.calories)}</div>
+                      <div className="nf-stat-label">Total Calories</div>
+                    </div>
+                    
+                    <div className="nf-result-stat">
+                      <div className="nf-stat-number">{Math.round(totals.protein)}g</div>
+                      <div className="nf-stat-label">Total Protein</div>
+                    </div>
+                    
+                    <div className="nf-result-stat">
+                      <div className="nf-stat-number">{Math.round(totals.carbs)}g</div>
+                      <div className="nf-stat-label">Total Carbs</div>
+                    </div>
+                    
+                    <div className="nf-result-stat">
+                      <div className="nf-stat-number">{Math.round(totals.fat)}g</div>
+                      <div className="nf-stat-label">Total Fat</div>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+            
+            {filteredCount > 0 && (
+              <div className="nf-top-matches">
+                <h4>Top Matches</h4>
+                <div className="nf-match-list">
+                  {topMatches.slice(0, 5).map((item, idx) => (
+                    <div key={item._id || idx} className="nf-match-item">
+                      <div className="nf-match-name">{item.name}</div>
+                      <div className="nf-match-nutrients">
+                        <span>{getNutrient(item, "calories")} cal</span>
+                        <span>{getNutrient(item, "protein")}g P</span>
+                        <span>{getNutrient(item, "carbs")}g C</span>
+                        <span>{getNutrient(item, "fat")}g F</span>
+                        <span className="nf-match-score">{item.__matchScore}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           
         </aside>
       </div>
