@@ -13,11 +13,12 @@ const Add = () => {
         category: "Salad"
     });
     const [showPredefined, setShowPredefined] = useState(false);
+    const [selectedPredefined, setSelectedPredefined] = useState(null);
 
     const onSubmitHandler = async (event) => {
         event.preventDefault();
 
-        if (!image) {
+        if (!image && !selectedPredefined) {
             toast.error('Image not selected');
             return null;
         }
@@ -27,7 +28,22 @@ const Add = () => {
         formData.append("description", data.description);
         formData.append("price", Number(data.price));
         formData.append("category", data.category);
-        formData.append("image", image);
+        
+        // If it's a predefined item, copy the image from assets to uploads
+        if (selectedPredefined) {
+            // Create a blob from the predefined image
+            try {
+                const response = await fetch(`/src/assets/${selectedPredefined.localImage}`);
+                const blob = await response.blob();
+                const file = new File([blob], selectedPredefined.localImage, { type: 'image/png' });
+                formData.append("image", file);
+            } catch (error) {
+                // Fallback: use the filename directly
+                formData.append("imageFilename", selectedPredefined.localImage);
+            }
+        } else {
+            formData.append("image", image);
+        }
 
         try {
             const response = await axios.post(`${url}/api/food/add`, formData);
@@ -40,6 +56,7 @@ const Add = () => {
                     category: data.category
                 });
                 setImage(false);
+                setSelectedPredefined(null);
             } else {
                 toast.error(response.data.message);
             }
@@ -53,7 +70,7 @@ const Add = () => {
         setData(prevData => ({ ...prevData, [name]: value }));
     }
 
-    const loadPredefinedItem = (item) => {
+    const loadPredefinedItem = async (item) => {
         setData({
             name: item.name,
             description: item.description,
@@ -61,12 +78,31 @@ const Add = () => {
             category: item.category
         });
         
-        // Create a fake file object for the predefined image
-        const fakeFile = new File([''], item.localImage, { type: 'image/png' });
-        setImage(fakeFile);
+        setSelectedPredefined(item);
+        setImage(false); // Clear any uploaded image
         
-        toast.success(`Loaded ${item.name} - Upload this to add to menu!`);
+        toast.success(`Loaded ${item.name} - Ready to add to menu!`);
         setShowPredefined(false);
+    }
+
+    const addPredefinedDirectly = async (item) => {
+        try {
+            const formData = new FormData();
+            formData.append("name", item.name);
+            formData.append("description", item.description);
+            formData.append("price", Number(item.price));
+            formData.append("category", item.category);
+            formData.append("imageFilename", item.localImage);
+
+            const response = await axios.post(`${url}/api/food/add`, formData);
+            if (response.data.success) {
+                toast.success(`${item.name} added to menu successfully!`);
+            } else {
+                toast.error(response.data.message);
+            }
+        } catch (error) {
+            toast.error('Error adding predefined item');
+        }
     }
 
     return (
@@ -88,12 +124,20 @@ const Add = () => {
                                     <h4>{item.name}</h4>
                                     <p>{item.category}</p>
                                     <p>₹{item.price}</p>
-                                    <button 
-                                        onClick={() => loadPredefinedItem(item)}
-                                        className="load-btn"
-                                    >
-                                        Load Item
-                                    </button>
+                                    <div className="predefined-actions">
+                                        <button 
+                                            onClick={() => loadPredefinedItem(item)}
+                                            className="load-btn"
+                                        >
+                                            Load to Form
+                                        </button>
+                                        <button 
+                                            onClick={() => addPredefinedDirectly(item)}
+                                            className="add-direct-btn"
+                                        >
+                                            Add Directly
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -104,19 +148,38 @@ const Add = () => {
             <form className='flex-col' onSubmit={onSubmitHandler}>
                 <div className='add-img-upload flex-col'>
                     <p>Upload image</p>
-                    <input 
-                        onChange={(e) => { 
-                            setImage(e.target.files[0]); 
-                            e.target.value = '' 
-                        }} 
-                        type="file" 
-                        accept="image/*" 
-                        id="image" 
-                        hidden 
-                    />
-                    <label htmlFor="image">
-                        <img src={!image ? assets.upload_area : URL.createObjectURL(image)} alt="" />
-                    </label>
+                    {selectedPredefined ? (
+                        <div className="predefined-image-preview">
+                            <p>Using predefined image: {selectedPredefined.localImage}</p>
+                            <button 
+                                type="button" 
+                                onClick={() => {
+                                    setSelectedPredefined(null);
+                                    setImage(false);
+                                }}
+                                className="clear-predefined"
+                            >
+                                Clear & Upload Custom
+                            </button>
+                        </div>
+                    ) : (
+                        <>
+                            <input 
+                                onChange={(e) => { 
+                                    setImage(e.target.files[0]); 
+                                    setSelectedPredefined(null);
+                                    e.target.value = '' 
+                                }} 
+                                type="file" 
+                                accept="image/*" 
+                                id="image" 
+                                hidden 
+                            />
+                            <label htmlFor="image">
+                                <img src={!image ? assets.upload_area : URL.createObjectURL(image)} alt="" />
+                            </label>
+                        </>
+                    )}
                 </div>
                 <div className='add-product-name flex-col'>
                     <p>Product name</p>

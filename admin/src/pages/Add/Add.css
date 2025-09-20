@@ -145,20 +145,70 @@
     font-size: 14px;
 }
 
+.predefined-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
 .load-btn {
     background-color: #28a745;
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
-    margin-top: 10px;
+    font-size: 12px;
     transition: background-color 0.3s;
+    flex: 1;
 }
 
 .load-btn:hover {
     background-color: #218838;
+}
+
+.add-direct-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s;
+    flex: 1;
+}
+
+.add-direct-btn:hover {
+    background-color: #0056b3;
+}
+
+.predefined-image-preview {
+    padding: 15px;
+    background-color: #e8f5e8;
+    border-radius: 8px;
+    text-align: center;
+    border: 2px dashed #28a745;
+}
+
+.predefined-image-preview p {
+    margin: 0 0 10px 0;
+    color: #28a745;
+    font-weight: 600;
+}
+
+.clear-predefined {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.clear-predefined:hover {
+    background-color: #545b62;
 }
 
 @media (max-width: 768px) {

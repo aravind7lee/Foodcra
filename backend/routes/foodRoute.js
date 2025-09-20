@@ -4,7 +4,6 @@ import multer from 'multer';
 const foodRouter = express.Router();
 
 //Image Storage Engine (Saving Image to uploads folder & rename it)
-
 const storage = multer.diskStorage({
     destination: 'uploads',
     filename: (req, file, cb) => {
@@ -14,8 +13,19 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage})
 
-foodRouter.get("/list",listFood);
-foodRouter.post("/add",upload.single('image'),addFood);
-foodRouter.post("/remove",removeFood);
+// Middleware to make image upload optional
+const optionalUpload = (req, res, next) => {
+    if (req.body.imageFilename) {
+        // Skip multer if using predefined image
+        next();
+    } else {
+        // Use multer for file upload
+        upload.single('image')(req, res, next);
+    }
+};
+
+foodRouter.get("/list", listFood);
+foodRouter.post("/add", optionalUpload, addFood);
+foodRouter.post("/remove", removeFood);
 
 export default foodRouter;
