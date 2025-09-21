@@ -5,9 +5,10 @@
   margin-top: 80px;
   position: relative;
   overflow: hidden;
+  background: var(--bg);
   background-size: cover;
   background-position: center;
-  transition: all 0.5s ease;
+  transition: all var(--transition-fast);
 }
 
 .review-slider::before {
@@ -30,7 +31,7 @@
 
 .slider-header h2 {
   font-size: 2.8rem;
-  color: #f2b544;
+  color: var(--accent);
   margin-bottom: 15px;
   font-weight: 800;
   letter-spacing: 1.5px;
@@ -39,7 +40,7 @@
 
 .aggregate-metrics {
   font-size: 1.2rem;
-  color: #555;
+  color: var(--muted);
   margin-bottom: 30px;
   font-weight: 500;
   display: flex;
@@ -49,20 +50,21 @@
 }
 
 .aggregate-metrics span {
-  background: rgba(255,255,255,0.7);
+  background: var(--surface);
   padding: 8px 15px;
   border-radius: 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
 }
 
 /* Review Card */
 .review-card {
-  background: rgba(255, 255, 255, 0.75);
-  border-radius: 20px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
   padding: 30px;
   margin: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: var(--card-shadow);
+  transition: all var(--transition-fast);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -70,7 +72,7 @@
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.3);
+  border: 1px solid var(--border);
 }
 
 .review-card:hover {
@@ -102,9 +104,9 @@
   border-radius: 50%;
   object-fit: cover;
   margin-right: 15px;
-  border: 3px solid #ff6b00;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border: 3px solid var(--accent);
+  transition: all var(--transition-fast);
+  box-shadow: var(--card-shadow);
 }
 
 .review-card:hover .review-image {
@@ -114,7 +116,7 @@
 
 .review-card h3 {
   font-size: 1.5rem;
-  color: #ff6b00;
+  color: var(--accent);
   font-weight: 700;
   margin-bottom: 5px;
   text-align: left;
@@ -146,7 +148,7 @@
 
 .timestamp {
   font-size: 0.8rem;
-  color: #777;
+  color: var(--muted);
 }
 
 .rating {
@@ -214,15 +216,15 @@
 
 .more-info-btn {
   padding: 10px 25px;
-  background: linear-gradient(to right, #ff6b00, #ff922b);
+  background: linear-gradient(to right, var(--accent), var(--accent-2));
   color: white;
   border: none;
   border-radius: 30px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(255, 107, 0, 0.3);
+  transition: all var(--transition-fast);
+  box-shadow: var(--card-shadow);
   position: relative;
   overflow: hidden;
   z-index: 1;
@@ -269,7 +271,7 @@
 .expanded-info p {
   font-size: 0.9rem;
   margin: 8px 0;
-  color: #555;
+  color: var(--text);
 }
 
 /* Emoji Effects */
@@ -341,90 +343,9 @@
   opacity: 1;
 }
 
-/* Dark Mode */
-.review-slider.dark {
-  background: linear-gradient(135deg, #2c3e50 0%, #1a2530 100%);
-}
 
-.review-slider.dark .review-card {
-  background: rgba(40, 44, 52, 0.8);
-  border: 1px solid rgba(255,255,255,0.1);
-}
 
-.review-slider.dark h2 {
-  color: #f2b544;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
 
-.review-slider.dark .review-card h3 {
-  color: #ff922b;
-}
-
-.review-slider.dark .verified-badge {
-  background: rgba(46, 204, 113, 0.2);
-}
-
-.review-slider.dark .timestamp {
-  color: #aaa;
-}
-
-.review-slider.dark .review-text {
-  color: #ddd;
-}
-
-.review-slider.dark .expanded-info p {
-  color: #bbb;
-}
-
-.review-slider.dark .expanded-info {
-  border-top: 1px dashed rgba(255,255,255,0.1);
-}
-
-.review-slider.dark .aggregate-metrics span {
-  background: rgba(0,0,0,0.3);
-  color: #ddd;
-}
-
-/* Toggle button */
-.theme-toggle {
-  background: linear-gradient(to right, #ff6b00, #ff922b);
-  color: white;
-  padding: 10px 25px;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  margin-bottom: 30px;
-  font-weight: 600;
-  box-shadow: 0 4px 10px rgba(255, 107, 0, 0.3);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.theme-toggle::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255,255,255,0.2);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: width 0.6s ease, height 0.6s ease;
-  z-index: -1;
-}
-
-.theme-toggle:hover::after {
-  width: 300px;
-  height: 300px;
-}
-
-.theme-toggle:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(255, 107, 0, 0.4);
-}
 
 /* Responsive */
 @media (max-width: 1024px) {

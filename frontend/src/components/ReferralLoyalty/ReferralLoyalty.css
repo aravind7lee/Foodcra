@@ -1,43 +1,19 @@
-:root {
-  /* Light Theme */
-  --background-color-light: #f8f9ff;
-  --card-background-light: #ffffff;
-  --text-color-light: #2d3748;
-  --accent-color: #ff6b47;
-  --accent-light: #fff0ed;
-  --success-color: #10b981;
-  --error-color: #ef4444;
-  --pending-color: #f59e0b;
-  --border-light: #e2e8f0;
-  --shadow-light: 0 10px 25px rgba(0, 0, 0, 0.05);
-  --progress-light: linear-gradient(90deg, #ff9a8b 0%, #ff6b47 100%);
-  
-  /* Dark Theme */
-  --background-color-dark: linear-gradient(135deg, #444 0%, #444 100%);; 
-  --card-background-dark: #1e293b;
-  --text-color-dark: #e2e8f0;
-  --border-dark: #334155;
-  --shadow-dark: 0 10px 25px rgba(0, 0, 0, 0.25);
-  --progress-dark: linear-gradient(90deg, #ff7b6b 0%, #ff4d2e 100%);
-}
+
 
 /* Container & Layout */
 .referral-loyalty-container {
-  background: var(--background-color-light);
+  background: var(--bg);
   padding: 2rem;
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   max-width: 1200px;
   margin: 2rem auto;
-  box-shadow: var(--shadow-light);
-  transition: all 0.3s ease;
+  box-shadow: var(--card-shadow);
+  transition: all var(--transition-fast);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text);
 }
 
-.referral-loyalty-container.dark {
-  background: var(--background-color-dark);
-  box-shadow: var(--shadow-dark);
-  color: var(--text-color-dark);
-}
+
 
 .rl-header {
   display: flex;
@@ -51,74 +27,22 @@
 .rl-header h2 {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--accent-color);
+  color: var(--accent);
   margin: 0;
 }
 
-/* Theme Toggle */
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
 
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 24px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: .4s;
-  border-radius: 34px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 16px;
-  width: 16px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: .4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: var(--accent-color);
-}
-
-input:checked + .slider:before {
-  transform: translateX(26px);
-}
 
 /* Tabs */
 .rl-tabs {
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border);
   padding-bottom: 1rem;
 }
 
-.referral-loyalty-container.dark .rl-tabs {
-  border-bottom-color: var(--border-dark);
-}
+
 
 .tab-btn {
   background: none;
@@ -130,22 +54,18 @@ input:checked + .slider:before {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.3s ease;
-  color: var(--text-color-light);
+  transition: all var(--transition-fast);
+  color: var(--text);
 }
 
-.referral-loyalty-container.dark .tab-btn {
-  color: var(--text-color-dark);
-}
+
 
 .tab-btn.active {
-  background: var(--accent-light);
-  color: var(--accent-color);
+  background: var(--surface-2);
+  color: var(--accent);
 }
 
-.referral-loyalty-container.dark .tab-btn.active {
-  background: rgba(255, 107, 71, 0.15);
-}
+
 
 .tab-icon {
   font-size: 1.2rem;
@@ -180,18 +100,16 @@ input:checked + .slider:before {
 
 /* Points Card */
 .points-card {
-  background: var(--card-background-light);
-  border-radius: 16px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
   padding: 2rem;
-  box-shadow: var(--shadow-light);
+  box-shadow: var(--card-shadow);
   margin-bottom: 2rem;
-  transition: all 0.3s ease;
+  transition: all var(--transition-fast);
+  border: 1px solid var(--border);
 }
 
-.referral-loyalty-container.dark .points-card {
-  background: var(--card-background-dark);
-  box-shadow: var(--shadow-dark);
-}
+
 
 .points-header {
   display: flex;
@@ -208,7 +126,7 @@ input:checked + .slider:before {
 
 .points-icon {
   font-size: 2rem;
-  color: var(--accent-color);
+  color: var(--accent);
 }
 
 .points-display {
@@ -219,21 +137,19 @@ input:checked + .slider:before {
 .points-count {
   font-size: 3.5rem;
   font-weight: 800;
-  color: var(--accent-color);
+  color: var(--accent);
   line-height: 1;
 }
 
 .points-label {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-color-light);
+  color: var(--text);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-.referral-loyalty-container.dark .points-label {
-  color: var(--text-color-dark);
-}
+
 
 .level-indicator {
   text-align: center;
@@ -267,9 +183,7 @@ input:checked + .slider:before {
   margin-bottom: 0.5rem;
 }
 
-.referral-loyalty-container.dark .progress-labels {
-  color: var(--text-color-dark);
-}
+
 
 .progress-bar-container {
   height: 12px;
@@ -279,34 +193,28 @@ input:checked + .slider:before {
   transition: width 0.5s ease-in-out;
 }
 
-.referral-loyalty-container.dark .progress-bar-container {
-  background-color: #334155;
-}
+
 
 .progress-bar-fill {
   height: 100%;
-  background: var(--progress-light);
+  background: linear-gradient(90deg, var(--accent-2) 0%, var(--accent) 100%);
   border-radius: 10px;
   transition: width 0.5s ease-in-out;
 }
 
-.referral-loyalty-container.dark .progress-bar-fill {
-  background: var(--progress-dark);
-}
+
 
 .redeem-info {
   text-align: center;
-  color: var(--text-color-light);
+  color: var(--text);
   margin-top: 1.5rem;
   font-size: 1rem;
 }
 
-.referral-loyalty-container.dark .redeem-info {
-  color: var(--text-color-dark);
-}
+
 
 .highlight {
-  color: var(--accent-color);
+  color: var(--accent);
   font-weight: 700;
 }
 
@@ -314,12 +222,10 @@ input:checked + .slider:before {
 .rewards-catalog h3 {
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
-  color: var(--text-color-light);
+  color: var(--text);
 }
 
-.referral-loyalty-container.dark .rewards-catalog h3 {
-  color: var(--text-color-dark);
-}
+
 
 .rewards-grid {
   display: grid;
@@ -328,24 +234,20 @@ input:checked + .slider:before {
 }
 
 .reward-card {
-  background: var(--card-background-light);
-  border-radius: 16px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
-  box-shadow: var(--shadow-light);
-  transition: all 0.3s ease;
-  border: 1px solid var(--border-light);
+  box-shadow: var(--card-shadow);
+  transition: all var(--transition-fast);
+  border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
 }
 
-.referral-loyalty-container.dark .reward-card {
-  background: var(--card-background-dark);
-  box-shadow: var(--shadow-dark);
-  border-color: var(--border-dark);
-}
+
 
 .reward-card.redeemable {
-  border-top: 4px solid var(--accent-color);
+  border-top: 4px solid var(--accent);
 }
 
 .reward-card:hover {
@@ -365,7 +267,7 @@ input:checked + .slider:before {
   align-items: center;
   gap: 0.25rem;
   font-weight: 700;
-  color: var(--accent-color);
+  color: var(--accent);
 }
 
 .reward-badge {
@@ -373,45 +275,39 @@ input:checked + .slider:before {
   font-weight: 700;
   padding: 0.25rem 0.75rem;
   border-radius: 50px;
-  background: var(--accent-light);
-  color: var(--accent-color);
+  background: var(--surface-2);
+  color: var(--accent);
 }
 
-.referral-loyalty-container.dark .reward-badge {
-  background: rgba(255, 107, 71, 0.2);
-}
+
 
 .reward-card h4 {
   margin: 0 0 0.5rem 0;
   font-size: 1.25rem;
-  color: var(--text-color-light);
+  color: var(--text);
 }
 
-.referral-loyalty-container.dark .reward-card h4 {
-  color: var(--text-color-dark);
-}
+
 
 .reward-card p {
-  color: var(--text-color-light);
+  color: var(--text);
   margin-bottom: 1.5rem;
   font-size: 0.95rem;
   line-height: 1.6;
 }
 
-.referral-loyalty-container.dark .reward-card p {
-  color: #cbd5e1;
-}
+
 
 .redeem-btn {
   width: 100%;
   padding: 0.75rem;
   border: none;
-  border-radius: 8px;
-  background: var(--accent-color);
+  border-radius: var(--radius-sm);
+  background: var(--accent);
   color: white;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-fast);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -424,10 +320,7 @@ input:checked + .slider:before {
   cursor: not-allowed;
 }
 
-.referral-loyalty-container.dark .redeem-btn.disabled {
-  background: #334155;
-  color: #94a3b8;
-}
+
 
 .redeem-btn:not(.disabled):hover {
   background: #ff4d2e;
@@ -445,10 +338,7 @@ input:checked + .slider:before {
   transition: all 0.3s ease;
 }
 
-.referral-loyalty-container.dark .referral-card {
-  background: var(--card-background-dark);
-  box-shadow: var(--shadow-dark);
-}
+
 
 .referral-card h3 {
   font-size: 1.5rem;
@@ -456,9 +346,7 @@ input:checked + .slider:before {
   color: var(--text-color-light);
 }
 
-.referral-loyalty-container.dark .referral-card h3 {
-  color: var(--text-color-dark);
-}
+
 
 .referral-subtitle {
   color: var(--text-color-light);
@@ -466,9 +354,7 @@ input:checked + .slider:before {
   font-size: 1.05rem;
 }
 
-.referral-loyalty-container.dark .referral-subtitle {
-  color: var(--text-color-dark);
-}
+
 
 .highlight-points {
   color: var(--accent-color);
@@ -491,11 +377,7 @@ input:checked + .slider:before {
   transition: all 0.3s ease;
 }
 
-.referral-loyalty-container.dark .input-group input {
-  background: #1a2435;
-  border-color: var(--border-dark);
-  color: var(--text-color-dark);
-}
+
 
 .input-group input:focus {
   outline: none;
@@ -533,11 +415,7 @@ input:checked + .slider:before {
   margin-bottom: 0.75rem;
 }
 
-.referral-loyalty-container.dark .copy-link-container input {
-  background: #1a2435;
-  border-color: var(--border-dark);
-  color: var(--text-color-dark);
-}
+
 
 .link-actions {
   display: flex;
@@ -563,9 +441,7 @@ input:checked + .slider:before {
   border: none;
 }
 
-.referral-loyalty-container.dark .copy-link-btn {
-  background: rgba(255, 107, 71, 0.15);
-}
+
 
 .copy-link-btn.copied {
   background: var(--success-color);
@@ -582,18 +458,13 @@ input:checked + .slider:before {
   border: none;
 }
 
-.referral-loyalty-container.dark .share-link-btn {
-  background: #334155;
-  color: #cbd5e1;
-}
+
 
 .share-link-btn:hover {
   background: #d1d9e3;
 }
 
-.referral-loyalty-container.dark .share-link-btn:hover {
-  background: #475569;
-}
+
 
 .share-container {
   position: relative;
@@ -617,11 +488,7 @@ input:checked + .slider:before {
   animation: fadeIn 0.2s ease-out;
 }
 
-.referral-loyalty-container.dark .share-options {
-  background: var(--card-background-dark);
-  box-shadow: var(--shadow-dark);
-  border-color: var(--border-dark);
-}
+
 
 .share-option {
   padding: 0.75rem 1rem;
@@ -635,18 +502,14 @@ input:checked + .slider:before {
   transition: all 0.2s ease;
 }
 
-.referral-loyalty-container.dark .share-option {
-  color: var(--text-color-dark);
-}
+
 
 .share-option:hover {
   background: var(--accent-light);
   color: var(--accent-color);
 }
 
-.referral-loyalty-container.dark .share-option:hover {
-  background: rgba(255, 107, 71, 0.15);
-}
+
 
 /* Referral History */
 .referral-history {
@@ -657,10 +520,7 @@ input:checked + .slider:before {
   transition: all 0.3s ease;
 }
 
-.referral-loyalty-container.dark .referral-history {
-  background: var(--card-background-dark);
-  box-shadow: var(--shadow-dark);
-}
+
 
 .referral-history h3 {
   font-size: 1.5rem;
@@ -669,9 +529,7 @@ input:checked + .slider:before {
   color: var(--text-color-light);
 }
 
-.referral-loyalty-container.dark .referral-history h3 {
-  color: var(--text-color-dark);
-}
+
 
 .history-table {
   border-radius: 10px;
@@ -679,9 +537,7 @@ input:checked + .slider:before {
   border: 1px solid var(--border-light);
 }
 
-.referral-loyalty-container.dark .history-table {
-  border-color: var(--border-dark);
-}
+
 
 .table-header, .table-row {
   display: grid;
@@ -696,17 +552,13 @@ input:checked + .slider:before {
   color: var(--accent-color);
 }
 
-.referral-loyalty-container.dark .table-header {
-  background: rgba(255, 107, 71, 0.15);
-}
+
 
 .table-row {
   border-bottom: 1px solid var(--border-light);
 }
 
-.referral-loyalty-container.dark .table-row {
-  border-bottom-color: var(--border-dark);
-}
+
 
 .table-row:last-child {
   border-bottom: none;
@@ -747,9 +599,7 @@ input:checked + .slider:before {
   color: var(--text-color-light);
 }
 
-.referral-loyalty-container.dark .empty-history {
-  color: var(--text-color-dark);
-}
+
 
 /* Referral Stats */
 .referral-stats {
@@ -768,10 +618,7 @@ input:checked + .slider:before {
   transition: all 0.3s ease;
 }
 
-.referral-loyalty-container.dark .stat-card {
-  background: var(--card-background-dark);
-  box-shadow: var(--shadow-dark);
-}
+
 
 .stat-value {
   font-size: 2rem;
@@ -785,9 +632,7 @@ input:checked + .slider:before {
   font-size: 0.95rem;
 }
 
-.referral-loyalty-container.dark .stat-label {
-  color: var(--text-color-dark);
-}
+
 
 /* Responsive */
 @media (max-width: 900px) {

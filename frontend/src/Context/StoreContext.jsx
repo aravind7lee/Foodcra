@@ -11,11 +11,9 @@ const StoreContextProvider = (props) => {
   const [food_list, setFoodList] = useState([]);
   const [filteredFoodList, setFilteredFoodList] = useState([]);
 
-  // cart/auth/points
+  // cart/auth
   const [cartItems, setCartItems] = useState({});
   const [token, setToken] = useState("");
-  const [referralPoints, setReferralPoints] = useState(0);
-  const [loyaltyPoints, setLoyaltyPoints] = useState(0);
   const [groceryList, setGroceryList] = useState([]);
 
   // search state
@@ -152,37 +150,13 @@ const StoreContextProvider = (props) => {
     [url, token]
   );
 
-  // Referral and Loyalty Points with NaN protection
-  const addReferralPoints = async (referrerId) => {
-    if (!token) return;
-    try {
-      await axios.post(url + "/api/referral/add", { referrerId }, { headers: { token } });
-      setReferralPoints((prev) => (Number(prev) || 0) + 10);
-    } catch (err) {
-      console.error("Error adding referral points:", err);
-    }
-  };
-
+  // Simplified discount system without API calls
   const applyReferralDiscount = () => {
-    const points = Number(referralPoints) || 0;
-    if (points >= 50) return 50;
-    return 0;
-  };
-
-  const addLoyaltyPoints = async () => {
-    if (!token) return;
-    try {
-      await axios.post(url + "/api/loyalty/add", {}, { headers: { token } });
-      setLoyaltyPoints((prev) => (Number(prev) || 0) + 5);
-    } catch (err) {
-      console.error("Error adding loyalty points:", err);
-    }
+    return 0; // Disabled for now
   };
 
   const applyLoyaltyDiscount = () => {
-    const points = Number(loyaltyPoints) || 0;
-    if (points >= 100) return 100;
-    return 0;
+    return 0; // Disabled for now
   };
 
   // Cart helpers with NaN protection
@@ -195,7 +169,6 @@ const StoreContextProvider = (props) => {
     if (token) {
       try {
         await axios.post(url + "/api/cart/add", { itemId }, { headers: { token } });
-        await addLoyaltyPoints();
       } catch (err) {
         console.error("Error adding to cart:", err);
       }
@@ -352,9 +325,6 @@ const StoreContextProvider = (props) => {
     setCartItems,
     currency,
     deliveryCharge,
-    referralPoints: Number(referralPoints) || 0,
-    loyaltyPoints: Number(loyaltyPoints) || 0,
-    addReferralPoints,
     applyReferralDiscount,
     applyLoyaltyDiscount,
     groceryList,

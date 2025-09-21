@@ -69,7 +69,7 @@ const FoodItem = ({ image, name, price, desc, id }) => {
       <div className='food-item-img-container'>
         <img 
           className='food-item-image' 
-          src={typeof image === 'string' ? `${url}/images/${image}` : image} 
+          src={`${url}/images/${image}`} 
           alt={name}
         />
         {currentItemCount === 0 ? (

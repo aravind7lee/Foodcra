@@ -1,0 +1,290 @@
+/* =========================
+   GLOBAL THEME SYSTEM
+   Food Website - Premium UI
+   ========================= */
+
+/* Light Theme (Default) */
+:root {
+  /* Semantic Color Variables - Darker Text for Better Visibility */
+  --color-text: #1a1a1a;
+  --color-muted: #4a5568;
+  --color-bg: #fafbfc;
+  --color-panel: #ffffff;
+  --color-border: #e2e8f0;
+  --color-accent: #ff6b35;
+  --color-accent-contrast: #ffffff;
+  --color-error: #ef4444;
+  --color-success: #10b981;
+  --accent-rgb: 255, 107, 53;
+  
+  /* Legacy Variables (mapped to semantic) */
+  --bg: var(--color-bg);
+  --surface: var(--color-panel);
+  --surface-2: #f8f9fa;
+  --text: var(--color-text);
+  --muted: var(--color-muted);
+  --accent: var(--color-accent);
+  --accent-2: #ff8a5c;
+  --danger: var(--color-error);
+  --success: var(--color-success);
+  --border: var(--color-border);
+  --glass: rgba(255, 255, 255, 0.85);
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.12);
+  
+  /* UI Tokens */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 2rem;
+  --control-bg: var(--color-panel);
+  --control-border: var(--color-border);
+  --control-text: var(--color-text);
+  --focus-ring: var(--color-accent);
+  --transition-fast: 200ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  --transition-slow: 300ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  
+  /* Food Theme Specific */
+  --food-primary: var(--color-accent);
+  --food-secondary: #ffb347;
+  --food-warm: #fff5ee;
+  --navbar-bg: linear-gradient(90deg, #49557E, #cbc9ba);
+  --header-gradient: linear-gradient(135deg, var(--accent), var(--accent-2));
+  --overlay-bg: rgba(0, 0, 0, 0.5);
+  --toast-bg: var(--surface);
+  --input-focus: var(--accent);
+  --link-color: var(--accent);
+  --link-hover: var(--accent-2);
+}
+
+/* Dark Theme - Exact Values for Perfect Contrast */
+[data-theme="dark"] {
+  /* Semantic Color Variables - Exact Hex Values */
+  --color-bg: #0b0f14;
+  --color-panel: rgba(255, 255, 255, 0.03);
+  --color-text: #E6EEF6;
+  --color-muted: #BFC6CC;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-accent: #ff6b35;
+  --color-accent-contrast: #ffffff;
+  --color-error: #ff5757;
+  --color-success: #4ade80;
+  --accent-rgb: 255, 107, 53;
+  
+  /* Legacy Variables (mapped to semantic) */
+  --bg: var(--color-bg);
+  --surface: var(--color-panel);
+  --surface-2: rgba(255, 255, 255, 0.05);
+  --text: var(--color-text);
+  --muted: var(--color-muted);
+  --accent: var(--color-accent);
+  --accent-2: #ff8a5c;
+  --danger: var(--color-error);
+  --success: var(--color-success);
+  --border: var(--color-border);
+  --glass: rgba(255, 255, 255, 0.02);
+  --card-shadow: 0 6px 18px rgba(2, 6, 23, 0.6);
+  
+  /* UI Tokens */
+  --control-bg: var(--color-panel);
+  --control-border: var(--color-border);
+  --control-text: var(--color-text);
+  --focus-ring: var(--color-accent);
+  
+  /* Food Theme Specific */
+  --food-primary: var(--color-accent);
+  --food-secondary: #ffb347;
+  --food-warm: var(--color-bg);
+  --navbar-bg: linear-gradient(90deg, var(--color-bg), rgba(255, 255, 255, 0.02));
+  --header-gradient: linear-gradient(135deg, var(--accent), var(--accent-2));
+  --overlay-bg: rgba(0, 0, 0, 0.8);
+  --toast-bg: var(--surface);
+  --input-focus: var(--accent);
+  --link-color: var(--accent);
+  --link-hover: var(--accent-2);
+}
+
+/* Global Transitions */
+* {
+  transition: color var(--transition-fast), 
+              background-color var(--transition-fast), 
+              border-color var(--transition-fast), 
+              box-shadow var(--transition-fast);
+}
+
+/* Apply theme variables to body */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+/* Global component theming */
+.app {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* Global text and placeholder fixes */
+::placeholder {
+  color: var(--color-muted);
+  opacity: 1;
+}
+
+/* SVG and icon color inheritance */
+svg {
+  color: var(--color-text);
+}
+
+.icon {
+  color: inherit;
+}
+
+/* Focus states for accessibility */
+*:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
+}
+
+/* Card components */
+.card, .food-item, .cart-item {
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--card-shadow);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+}
+
+/* Form controls */
+input, textarea, select {
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
+  border-color: var(--color-accent);
+}
+
+/* Buttons */
+button {
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  color: var(--color-text);
+}
+
+.btn-primary {
+  background-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-2);
+}
+
+/* Links */
+a {
+  color: var(--color-accent);
+}
+
+a:hover {
+  color: var(--accent-2);
+}
+
+/* Modal and overlay */
+.modal-overlay, .popup-overlay {
+  background-color: var(--overlay-bg);
+}
+
+.modal, .popup {
+  background-color: var(--color-panel);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--card-shadow);
+  border-radius: var(--radius-lg);
+  color: var(--color-text);
+}
+
+/* Toast notifications */
+.Toastify__toast {
+  background-color: var(--color-panel) !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+.Toastify__toast--success {
+  background-color: var(--color-success) !important;
+  color: var(--color-accent-contrast) !important;
+}
+
+.Toastify__toast--error {
+  background-color: var(--color-error) !important;
+  color: var(--color-accent-contrast) !important;
+}
+
+/* Global Text Visibility Fixes */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text) !important;
+}
+
+p, span, div, label {
+  color: var(--color-text);
+}
+
+.muted, .text-muted {
+  color: var(--color-muted) !important;
+}
+
+/* Dark Mode Global Text Overrides */
+[data-theme="dark"] * {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, 
+[data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6 {
+  color: var(--color-text) !important;
+}
+
+[data-theme="dark"] p, [data-theme="dark"] span, [data-theme="dark"] div {
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .muted, [data-theme="dark"] .text-muted {
+  color: var(--color-muted) !important;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+  
+  .theme-toggle-bounce {
+    animation: none !important;
+  }
+}
+
+/* Image Handling */
+.no-invert {
+  filter: none !important;
+}
+
+.theme-image {
+  transition: filter var(--transition-fast);
+}
+
+[data-theme="dark"] .theme-image:not(.no-invert) {
+  filter: contrast(0.95) saturate(1.05);
+}
+
+/* Focus Ring Utility */
+.focus-ring:focus {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}

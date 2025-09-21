@@ -5,12 +5,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { StoreContext } from '../../Context/StoreContext';
 import nav_dropdown from '../../assets/nav_dropdown.png';
 import SearchBar from '../SearchBar/SearchBar';
+import ThemeToggle from '../ThemeToggle/ThemeToggle';
 
 const Navbar = ({ setShowLogin }) => {
   const [menu, setMenu] = useState("home");
   const { getTotalCartAmount, token, setToken } = useContext(StoreContext);
   const navigate = useNavigate();
-  const [isDarkMode, setIsDarkMode] = useState(false);
+
   const [showSearch, setShowSearch] = useState(false);
   const menuRef = useRef(null);
   const navbarRef = useRef(null);
@@ -21,12 +22,6 @@ const Navbar = ({ setShowLogin }) => {
   };
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark-mode');
-      setIsDarkMode(true);
-    }
-    
     // Close dropdown when clicking outside
     const handleClickOutside = (e) => {
       if (navbarRef.current && !navbarRef.current.contains(e.target)) {
@@ -40,16 +35,7 @@ const Navbar = ({ setShowLogin }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    if (!isDarkMode) {
-      document.body.classList.add('dark-mode');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.body.classList.remove('dark-mode');
-      localStorage.setItem('theme', 'light');
-    }
-  };
+
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -85,6 +71,8 @@ const Navbar = ({ setShowLogin }) => {
         </ul>
         
         <div className="navbar-right">
+          <ThemeToggle />
+          
           <button 
             className="search-icon-button" 
             onClick={() => setShowSearch(true)}
@@ -115,10 +103,7 @@ const Navbar = ({ setShowLogin }) => {
             </div>
           )}
 
-          <label className="switch">
-            <input type="checkbox" checked={isDarkMode} onChange={toggleTheme} />
-            <span className="slider"></span>
-          </label>
+
         </div>
       </div>
       

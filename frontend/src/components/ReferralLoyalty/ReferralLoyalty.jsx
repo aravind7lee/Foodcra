@@ -55,7 +55,7 @@ const ReferralLoyalty = () => {
   const loyaltyRewards = Number(loyaltyPoints) || 0;
   const [referralEmail, setReferralEmail] = useState('');
   const [notification, setNotification] = useState({ message: '', type: '' });
-  const [darkMode, setDarkMode] = useState(false);
+
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState('rewards');
   const [showShareOptions, setShowShareOptions] = useState(false);
@@ -73,9 +73,6 @@ const ReferralLoyalty = () => {
   const shareRef = useRef(null);
   
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') === 'dark';
-    setDarkMode(savedTheme);
-    
     const handleClickOutside = (event) => {
       if (shareRef.current && !shareRef.current.contains(event.target)) {
         setShowShareOptions(false);
@@ -86,10 +83,7 @@ const ReferralLoyalty = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    localStorage.setItem('theme', !darkMode ? 'dark' : 'light');
-  };
+
 
   const handleReferralSubmit = (e) => {
     e.preventDefault();
@@ -163,16 +157,10 @@ const ReferralLoyalty = () => {
   };
 
   return (
-    <div className={`referral-loyalty-container ${darkMode ? 'dark' : ''}`}>
+    <div className="referral-loyalty-container">
       <div className="rl-header">
         <h2>Referral & Loyalty Rewards</h2>
-        <div className="theme-toggle">
-          <label className="switch">
-            <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} />
-            <span className="slider round"></span>
-          </label>
-          <span>Dark Mode</span>
-        </div>
+
       </div>
 
       {notification.message && (

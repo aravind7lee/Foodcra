@@ -20,6 +20,8 @@ const PlaceOrder = () => {
         country: "",
         phone: ""
     })
+    const [countryCode, setCountryCode] = useState("+91")
+    const [phoneError, setPhoneError] = useState("")
 
     const { getTotalCartAmount, token, food_list, cartItems, url, setCartItems,currency,deliveryCharge } = useContext(StoreContext);
 
@@ -31,8 +33,38 @@ const PlaceOrder = () => {
         setData(data => ({ ...data, [name]: value }))
     }
 
+    const handlePhoneChange = (event) => {
+        const value = event.target.value.replace(/\D/g, '') // Only digits
+        if (value.length <= 10) {
+            setData(data => ({ ...data, phone: value }))
+            if (value.length === 10) {
+                setPhoneError("")
+            } else if (value.length > 0) {
+                setPhoneError(`Enter ${10 - value.length} more digits`)
+            } else {
+                setPhoneError("Phone number is required")
+            }
+        }
+    }
+
+    const validatePhone = () => {
+        if (data.phone.length !== 10) {
+            setPhoneError("Phone number must be exactly 10 digits")
+            return false
+        }
+        setPhoneError("")
+        return true
+    }
+
     const placeOrder = async (e) => {
         e.preventDefault()
+        
+        // Validate phone number
+        if (!validatePhone()) {
+            toast.error("Please enter a valid 10-digit phone number")
+            return
+        }
+        
         let orderItems = [];
         food_list.map(((item) => {
             if (cartItems[item._id] > 0) {
@@ -42,7 +74,7 @@ const PlaceOrder = () => {
             }
         }))
         let orderData = {
-            address: data,
+            address: { ...data, phone: countryCode + data.phone },
             items: orderItems,
             amount: getTotalCartAmount() + deliveryCharge,
         }
@@ -98,7 +130,36 @@ const PlaceOrder = () => {
                     <input type="text" name='zipcode' onChange={onChangeHandler} value={data.zipcode} placeholder='Zip code' required />
                     <input type="text" name='country' onChange={onChangeHandler} value={data.country} placeholder='Country' required />
                 </div>
-                <input type="text" name='phone' onChange={onChangeHandler} value={data.phone} placeholder='Phone' required />
+                <div className="phone-input-container">
+                    <select 
+                        className="country-code-select" 
+                        value={countryCode} 
+                        onChange={(e) => setCountryCode(e.target.value)}
+                    >
+                        <option value="+91">🇮🇳 +91</option>
+                        <option value="+1">🇺🇸 +1</option>
+                        <option value="+44">🇬🇧 +44</option>
+                        <option value="+61">🇦🇺 +61</option>
+                        <option value="+81">🇯🇵 +81</option>
+                        <option value="+49">🇩🇪 +49</option>
+                        <option value="+33">🇫🇷 +33</option>
+                        <option value="+86">🇨🇳 +86</option>
+                        <option value="+7">🇷🇺 +7</option>
+                        <option value="+55">🇧🇷 +55</option>
+                    </select>
+                    <input 
+                        type="tel" 
+                        name='phone' 
+                        onChange={handlePhoneChange} 
+                        value={data.phone} 
+                        placeholder='Enter 10-digit mobile number' 
+                        className={`phone-input ${phoneError ? 'error' : ''}`}
+                        maxLength="10"
+                        required 
+                    />
+                </div>
+                {phoneError && <div className="phone-error">{phoneError}</div>}
+                <div className="phone-info">Format: {countryCode} {data.phone || 'XXXXXXXXXX'}</div>
             </div>
             <div className="place-order-right">
                 <div className="cart-total">

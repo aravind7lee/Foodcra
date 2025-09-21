@@ -10,8 +10,11 @@ const FoodDisplay = ({ category = "All" }) => {
   const navigate = useNavigate();
   const lastScrolledKeyRef = useRef(null);
 
-  // Choose list to show
-  const listToShow = Array.isArray(filteredFoodList) && filteredFoodList.length > 0 ? filteredFoodList : food_list || [];
+  // Choose list to show - prioritize food_list unless there's an active search
+  const { lastQuery } = useContext(StoreContext);
+  const listToShow = (lastQuery && Array.isArray(filteredFoodList) && filteredFoodList.length > 0) 
+    ? filteredFoodList 
+    : food_list || [];
 
   // Auto-scroll only when the URL contains the hash #food-display and it is a navigation event
   useEffect(() => {

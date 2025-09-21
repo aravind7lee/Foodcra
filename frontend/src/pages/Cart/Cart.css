@@ -4,7 +4,7 @@
 
 .cart hr {
     height: 1px;
-    background-color: #E2E2E2;
+    background-color: var(--border);
     border: none;
 }
 
@@ -26,9 +26,12 @@
 .cart-items-item div {
     max-width: 40px;
     text-align: center;
-    border: 1px solid #EBEBEB;
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    color: var(--text);
     padding: 8px 8px;
     font-size: 12px;
+    border-radius: var(--radius-sm);
 }
 .cart-items-remove-icon{
     cursor: pointer;
@@ -48,7 +51,7 @@
 }
 
 .cart-total h2 {
-    color:#9ab147;
+    color: var(--accent);
 }
 
 .cart-total-details {
@@ -64,11 +67,12 @@
 .cart-total button {
     border: none;
     color: white;
-    background-color: #FF4C24;
+    background-color: var(--accent);
     width: max(15vw,200px);
     padding: 12px 0px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
+    transition: background-color var(--transition-fast);
 }
 
 .cartitems-promocode {
@@ -77,16 +81,16 @@
     font-weight: 500;
 }
 .cartitems-promocode p {
-    color: rgb(239, 170, 90);
-
+    color: var(--accent-2);
 }
 .cartitems-promobox {
     width: 500px;
     margin-top: 15px;
     padding-left: 20px;
-    height: 68px;
-    background: #eaeaea;
     height: 50px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
 }
 .cartitems-promobox input {
     width: 330px;
@@ -94,19 +98,21 @@
     outline: none;
     border: none;
     background: transparent;
+    color: var(--text);
     font-size: 16px;
 }
 .cartitems-promobox button {
     width: 170px;
-    height: 58px;
-    background: black;
-    color: white;
+    height: 50px;
+    background: var(--text);
+    color: var(--surface);
     font-size: 16px;
     cursor: pointer;
-    margin-right:70px;
+    margin-right: 70px;
     margin-top: 20px;
-    height: 50px;
-    height: 50px;
+    border: none;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--transition-fast);
 }
 
 @media (max-width: 900px) {

@@ -80,13 +80,13 @@ const reviews = [
 ];
 
 const ReviewSlider = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+
   const [expandedReview, setExpandedReview] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
   const sliderRef = useRef(null);
   
-  const toggleTheme = () => setIsDarkMode(prev => !prev);
+
   
   // Calculate aggregate metrics
   const totalReviews = reviews.length;
@@ -150,7 +150,7 @@ const ReviewSlider = () => {
 
   return (
     <div 
-      className={`review-slider ${isDarkMode ? 'dark' : ''}`}
+      className="review-slider"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
@@ -163,9 +163,7 @@ const ReviewSlider = () => {
         </div>
       </div>
       
-      <button className="theme-toggle" onClick={toggleTheme}>
-        {isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-      </button>
+
 
       <Slider 
         ref={sliderRef} 

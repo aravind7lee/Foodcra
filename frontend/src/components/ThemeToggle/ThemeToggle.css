@@ -1,0 +1,112 @@
+/* Modern Theme Toggle - Navbar Optimized */
+.modern-theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: #ffffff !important;
+  opacity: 0.9;
+  will-change: transform, opacity, background-color;
+  transition: all 200ms ease-out;
+  transform-origin: center;
+  min-width: 40px;
+}
+
+.modern-theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.08);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.modern-theme-toggle:active {
+  transform: scale(0.95) rotate(8deg);
+  transition: all 100ms ease-out;
+}
+
+.modern-theme-toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.modern-theme-toggle svg {
+  will-change: transform;
+  transition: all 200ms ease-out;
+  transform-origin: center;
+  backface-visibility: hidden;
+  color: inherit;
+}
+
+.modern-theme-toggle:hover svg {
+  transform: rotate(10deg) scale(1.05);
+}
+
+.modern-theme-toggle:active svg {
+  transform: rotate(-6deg) scale(0.96);
+  transition: all 100ms ease-out;
+}
+
+/* Icon Sizing */
+.h-5 {
+  height: 22px;
+  width: 22px;
+}
+
+.w-5 {
+  width: 22px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 900px) {
+  .modern-theme-toggle {
+    padding: 5px;
+    min-width: 36px;
+  }
+  
+  .h-5, .w-5 {
+    height: 20px;
+    width: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .modern-theme-toggle {
+    padding: 4px;
+    min-width: 34px;
+  }
+  
+  .h-5, .w-5 {
+    height: 18px;
+    width: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modern-theme-toggle {
+    padding: 3px;
+    min-width: 32px;
+  }
+  
+  .h-5, .w-5 {
+    height: 16px;
+    width: 16px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .modern-theme-toggle,
+  .modern-theme-toggle svg {
+    transition: opacity 150ms ease !important;
+  }
+  
+  .modern-theme-toggle:hover,
+  .modern-theme-toggle:hover svg,
+  .modern-theme-toggle:active,
+  .modern-theme-toggle:active svg {
+    transform: none !important;
+  }
+}

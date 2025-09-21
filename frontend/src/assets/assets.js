@@ -158,7 +158,7 @@ export const menu_list = [
   },
   {
     menu_name: "Biryani",
-    menu_image: menu_10,
+    menu_image: food_37,
   },
 ];
 

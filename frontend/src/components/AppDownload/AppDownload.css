@@ -3,6 +3,10 @@
     font-size: max(3vw, 20px);
     text-align: center;
     font-weight: 500;
+    color: var(--text);
+    background-color: var(--bg);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
 }
 .app-download-platforms{
     display: flex;
@@ -18,4 +22,5 @@
 }
 .app-download-platforms img:hover{
     transform: scale(1.05);
+    filter: brightness(1.1);
  }

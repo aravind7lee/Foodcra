@@ -12,8 +12,8 @@ const Header = () => {
     return (
         <div className='header'>
             <div className='header-contents'>
-                <h2>Order your favourite food here</h2>
-                <p>Choose from a diverse menu featuring a delectable array of dishes crafted with the finest ingredients and culinary expertise. Our mission is to satisfy your cravings and elevate your dining experience, one delicious meal at a time.</p>
+                <h2>Craving Something Amazing?</h2>
+                <p>Fresh flavors delivered fast. Premium ingredients, chef-crafted dishes, straight to your door in minutes.</p>
                 <button onClick={scrollToMenu}>View Menu</button>
             </div>
         </div>
