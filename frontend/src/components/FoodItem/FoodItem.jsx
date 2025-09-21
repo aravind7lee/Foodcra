@@ -2,6 +2,7 @@ import React, { useContext, useMemo, useState } from 'react';
 import './FoodItem.css';
 import { assets } from '../../assets/assets';
 import { StoreContext } from '../../Context/StoreContext';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
 
 const Star = ({ filled }) => {
   return (
@@ -69,8 +70,9 @@ const FoodItem = ({ image, name, price, desc, id }) => {
       <div className='food-item-img-container'>
         <img 
           className='food-item-image' 
-          src={`${url}/images/${image}`} 
+          src={getImageUrl(image, name)} 
           alt={name}
+          onError={(e) => handleImageError(e, name)}
         />
         {currentItemCount === 0 ? (
           <img className='add' onClick={() => addToCart(id)} src={assets.add_icon_white} alt="Add to cart" />

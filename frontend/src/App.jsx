@@ -15,6 +15,8 @@ import StoreContextProvider from './Context/StoreContext';
 import AppDownload from './components/AppDownload/AppDownload';
 import FoodDisplay from './components/FoodDisplay/FoodDisplay';
 import StickyCart from './components/StickyCart/StickyCart';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+import OfflineNotice from './components/OfflineNotice/OfflineNotice';
 
 
 const AppLayout = () => {
@@ -26,6 +28,7 @@ const AppLayout = () => {
   
   return (
     <>
+      <OfflineNotice />
       <ToastContainer />
       {showLogin && <LoginPopup setShowLogin={setShowLogin} />}
       <div className="app">
@@ -50,11 +53,13 @@ const AppLayout = () => {
 
 const App = () => {
   return (
-    <StoreContextProvider>
-      <Routes>
-        <Route path="/*" element={<AppLayout />} />
-      </Routes>
-    </StoreContextProvider>
+    <ErrorBoundary>
+      <StoreContextProvider>
+        <Routes>
+          <Route path="/*" element={<AppLayout />} />
+        </Routes>
+      </StoreContextProvider>
+    </ErrorBoundary>
   );
 };
 

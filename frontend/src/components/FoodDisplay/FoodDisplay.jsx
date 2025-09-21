@@ -1,14 +1,23 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import "./FoodDisplay.css";
 import FoodItem from "../FoodItem/FoodItem";
 import { StoreContext } from "../../Context/StoreContext";
 import { useLocation, useNavigate } from "react-router-dom";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 const FoodDisplay = ({ category = "All" }) => {
   const { food_list, filteredFoodList } = useContext(StoreContext);
   const location = useLocation();
   const navigate = useNavigate();
   const lastScrolledKeyRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check if data is loaded
+  useEffect(() => {
+    if (food_list && food_list.length >= 0) {
+      setIsLoading(false);
+    }
+  }, [food_list]);
 
   // Choose list to show - prioritize food_list unless there's an active search
   const { lastQuery } = useContext(StoreContext);
@@ -46,7 +55,9 @@ const FoodDisplay = ({ category = "All" }) => {
       <h2>Top dishes near you</h2>
 
       <div className="food-display-list">
-        {listToShow && listToShow.length > 0 ? (
+        {isLoading ? (
+          <LoadingSpinner message="Loading delicious food..." />
+        ) : listToShow && listToShow.length > 0 ? (
           listToShow.map((item) => {
             if (category === "All" || category === item.category) {
               return (
