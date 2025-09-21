@@ -46,6 +46,10 @@ const NUTRITION_DATA = [
   { Name: "Spicy Chicken Wings", Calories: 300, Protein: 20, Carbs: 15, Fat: 12 },
   { Name: "Tandoori Chicken", Calories: 450, Protein: 30, Carbs: 10, Fat: 25 },
   { Name: "Grilled Chicken", Calories: 450, Protein: 30, Carbs: 10, Fat: 25 },
+  { Name: "Chicken Biryani", Calories: 500, Protein: 28, Carbs: 65, Fat: 15 },
+  { Name: "Mutton Biryani", Calories: 550, Protein: 32, Carbs: 60, Fat: 18 },
+  { Name: "Veg Biryani", Calories: 400, Protein: 12, Carbs: 70, Fat: 10 },
+  { Name: "Prawn Biryani", Calories: 480, Protein: 25, Carbs: 62, Fat: 12 },
 ];
 
 const parseNum = (v) => {
