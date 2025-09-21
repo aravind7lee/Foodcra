@@ -478,49 +478,83 @@
   background-color: #a8a8a8;
 }
 
-/* Dark Mode Specific Overrides for Perfect Text Visibility */
+/* Dark Mode Specific Overrides for Perfect Background and Text Visibility */
 [data-theme="dark"] .sticky-cart {
-  background-color: var(--color-panel);
-  border: 1px solid var(--color-border);
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+}
+
+[data-theme="dark"] .sticky-cart-body {
+  background-color: #1f2937 !important;
 }
 
 [data-theme="dark"] .sticky-cart .cart-item-card {
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--color-border);
+  background-color: #374151 !important;
+  border: 1px solid #4b5563 !important;
+}
+
+[data-theme="dark"] .sticky-cart .cart-summary-section {
+  background-color: #374151 !important;
+  border: 1px solid #4b5563 !important;
+}
+
+[data-theme="dark"] .sticky-cart .delivery-progress {
+  background-color: #374151 !important;
+  border: 1px solid #4b5563 !important;
 }
 
 [data-theme="dark"] .sticky-cart .item-name {
-  color: var(--color-text) !important;
+  color: #e5e7eb !important;
 }
 
 [data-theme="dark"] .sticky-cart .item-total {
-  color: var(--color-text) !important;
+  color: #e5e7eb !important;
 }
 
 [data-theme="dark"] .sticky-cart .summary-row {
-  color: var(--color-text) !important;
+  color: #e5e7eb !important;
 }
 
 [data-theme="dark"] .sticky-cart .cart-header h3 {
-  color: var(--color-text) !important;
+  color: #e5e7eb !important;
 }
 
 [data-theme="dark"] .sticky-cart .progress-text {
-  color: var(--color-text) !important;
+  color: #e5e7eb !important;
 }
 
 [data-theme="dark"] .sticky-cart .quantity-controls button {
-  color: var(--color-text) !important;
-  background-color: rgba(255, 255, 255, 0.05);
+  color: #e5e7eb !important;
+  background-color: #4b5563 !important;
 }
 
 [data-theme="dark"] .sticky-cart .quantity-controls span {
-  color: var(--color-accent) !important;
+  color: #ff6b35 !important;
+}
+
+[data-theme="dark"] .sticky-cart .close-cart {
+  color: #9ca3af !important;
+}
+
+[data-theme="dark"] .sticky-cart .clear-cart-btn {
+  color: #9ca3af !important;
+  border-color: #4b5563 !important;
+  background-color: transparent !important;
+}
+
+[data-theme="dark"] .sticky-cart .clear-cart-btn:hover {
+  background-color: #374151 !important;
+  color: #ef4444 !important;
+  border-color: #ef4444 !important;
+}
+
+[data-theme="dark"] .sticky-cart .empty-cart-message p {
+  color: #9ca3af !important;
 }
 
 [data-theme="dark"] .sticky-cart svg {
   fill: currentColor;
-  color: var(--color-text);
+  color: #e5e7eb;
 }
 
 @media (max-width: 480px) {
