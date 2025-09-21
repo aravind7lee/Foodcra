@@ -2,7 +2,92 @@ import React, { useContext, useMemo, useState } from 'react';
 import './FoodItem.css';
 import { assets } from '../../assets/assets';
 import { StoreContext } from '../../Context/StoreContext';
-import { getImageUrl, handleImageError } from '../../utils/imageUtils';
+
+// Import all food images for fallback
+import food_1 from '../../assets/food_1.png';
+import food_2 from '../../assets/food_2.png';
+import food_3 from '../../assets/food_3.png';
+import food_4 from '../../assets/food_4.png';
+import food_5 from '../../assets/food_5.png';
+import food_6 from '../../assets/food_6.png';
+import food_7 from '../../assets/food_7.png';
+import food_8 from '../../assets/food_8.png';
+import food_9 from '../../assets/food_9.png';
+import food_10 from '../../assets/food_10.png';
+import food_11 from '../../assets/food_11.png';
+import food_12 from '../../assets/food_12.png';
+import food_13 from '../../assets/food_13.png';
+import food_14 from '../../assets/food_14.png';
+import food_15 from '../../assets/food_15.png';
+import food_16 from '../../assets/food_16.png';
+import food_17 from '../../assets/food_17.png';
+import food_18 from '../../assets/food_18.png';
+import food_19 from '../../assets/food_19.png';
+import food_20 from '../../assets/food_20.png';
+import food_21 from '../../assets/food_21.png';
+import food_22 from '../../assets/food_22.png';
+import food_23 from '../../assets/food_23.png';
+import food_24 from '../../assets/food_24.png';
+import food_25 from '../../assets/food_25.png';
+import food_26 from '../../assets/food_26.png';
+import food_27 from '../../assets/food_27.png';
+import food_28 from '../../assets/food_28.png';
+import food_29 from '../../assets/food_29.png';
+import food_30 from '../../assets/food_30.png';
+import food_31 from '../../assets/food_31.png';
+import food_32 from '../../assets/food_32.png';
+import food_33 from '../../assets/food_33.png';
+import food_34 from '../../assets/food_34.png';
+import food_35 from '../../assets/food_35.png';
+import food_36 from '../../assets/food_36.png';
+import food_37 from '../../assets/food_37.png';
+import food_38 from '../../assets/food_38.png';
+import food_39 from '../../assets/food_39.png';
+import food_40 from '../../assets/food_40.png';
+
+// Create a mapping of image names to local imports
+const localImages = {
+  'food_1.png': food_1,
+  'food_2.png': food_2,
+  'food_3.png': food_3,
+  'food_4.png': food_4,
+  'food_5.png': food_5,
+  'food_6.png': food_6,
+  'food_7.png': food_7,
+  'food_8.png': food_8,
+  'food_9.png': food_9,
+  'food_10.png': food_10,
+  'food_11.png': food_11,
+  'food_12.png': food_12,
+  'food_13.png': food_13,
+  'food_14.png': food_14,
+  'food_15.png': food_15,
+  'food_16.png': food_16,
+  'food_17.png': food_17,
+  'food_18.png': food_18,
+  'food_19.png': food_19,
+  'food_20.png': food_20,
+  'food_21.png': food_21,
+  'food_22.png': food_22,
+  'food_23.png': food_23,
+  'food_24.png': food_24,
+  'food_25.png': food_25,
+  'food_26.png': food_26,
+  'food_27.png': food_27,
+  'food_28.png': food_28,
+  'food_29.png': food_29,
+  'food_30.png': food_30,
+  'food_31.png': food_31,
+  'food_32.png': food_32,
+  'food_33.png': food_33,
+  'food_34.png': food_34,
+  'food_35.png': food_35,
+  'food_36.png': food_36,
+  'food_37.png': food_37,
+  'food_38.png': food_38,
+  'food_39.png': food_39,
+  'food_40.png': food_40,
+};
 
 const Star = ({ filled }) => {
   return (
@@ -70,9 +155,15 @@ const FoodItem = ({ image, name, price, desc, id }) => {
       <div className='food-item-img-container'>
         <img 
           className='food-item-image' 
-          src={getImageUrl(image, name)} 
+          src={`${url}/images/${image}`} 
           alt={name}
-          onError={(e) => handleImageError(e, name)}
+          onError={(e) => {
+            // Use local image as fallback
+            const localImage = localImages[image];
+            if (localImage && !e.target.src.includes('blob:')) {
+              e.target.src = localImage;
+            }
+          }}
         />
         {currentItemCount === 0 ? (
           <img className='add' onClick={() => addToCart(id)} src={assets.add_icon_white} alt="Add to cart" />
