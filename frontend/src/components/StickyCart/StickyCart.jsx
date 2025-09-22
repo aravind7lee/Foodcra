@@ -53,11 +53,15 @@ const StickyCart = () => {
 
   const clearCart = async () => {
     setCartItems({});
-    localStorage.setItem('cartItems', JSON.stringify({}));
+    localStorage.removeItem('cartItems');
 
     if (token) {
       try {
-        await axios.post("https://foodcra-backend.onrender.com/api/cart/clear", {}, { headers: { token } });
+        // Clear each item individually since there's no clear endpoint
+        const itemIds = Object.keys(cartItems);
+        for (const itemId of itemIds) {
+          await axios.post("http://localhost:4000/api/cart/remove", { itemId }, { headers: { token } });
+        }
       } catch (error) {
         console.error("Error clearing cart:", error);
       }
@@ -68,10 +72,9 @@ const StickyCart = () => {
     const updatedCart = { ...cartItems };
     delete updatedCart[itemId];
     setCartItems(updatedCart);
-    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
 
     if (token) {
-      axios.post("https://foodcra-backend.onrender.com/api/cart/remove", { itemId }, { headers: { token } })
+      axios.post("http://localhost:4000/api/cart/remove", { itemId }, { headers: { token } })
         .catch(error => console.error("Error removing item:", error));
     }
   };
@@ -81,7 +84,6 @@ const StickyCart = () => {
     
     const updatedCart = { ...cartItems, [itemId]: newQuantity };
     setCartItems(updatedCart);
-    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
   };
 
   const formatTime = (seconds) => {

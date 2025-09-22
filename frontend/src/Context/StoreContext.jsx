@@ -173,8 +173,6 @@ const StoreContextProvider = (props) => {
     setCartItems((prev) => {
       const currentQty = Number(prev[itemId]) || 0;
       const newCart = { ...prev, [itemId]: currentQty + 1 };
-      // Save to localStorage as backup
-      localStorage.setItem('cartItems', JSON.stringify(newCart));
       return newCart;
     });
 
@@ -185,7 +183,7 @@ const StoreContextProvider = (props) => {
           timeout: 5000
         });
       } catch (err) {
-        console.warn("Cart sync failed, using local storage:", err.message);
+        console.warn("Cart sync failed:", err.message);
       }
     }
   };
@@ -201,8 +199,6 @@ const StoreContextProvider = (props) => {
       } else {
         newCart = { ...prev, [itemId]: newQty };
       }
-      // Save to localStorage as backup
-      localStorage.setItem('cartItems', JSON.stringify(newCart));
       return newCart;
     });
 
@@ -213,7 +209,7 @@ const StoreContextProvider = (props) => {
           timeout: 5000
         });
       } catch (err) {
-        console.warn("Cart sync failed, using local storage:", err.message);
+        console.warn("Cart sync failed:", err.message);
       }
     }
   };
@@ -261,18 +257,18 @@ const StoreContextProvider = (props) => {
         headers: { token: tokenVal },
         timeout: 5000
       });
-      setCartItems(response?.data?.cartData || {});
-    } catch (error) {
-      console.warn("Cart data unavailable, using local storage:", error.message);
-      // Try to load from localStorage as fallback
-      const localCart = localStorage.getItem('cartItems');
-      if (localCart) {
-        try {
-          setCartItems(JSON.parse(localCart));
-        } catch (e) {
-          setCartItems({});
-        }
+      if (response.data.success) {
+        const cartData = response.data.cartData || {};
+        setCartItems(cartData);
+        localStorage.setItem('cartItems', JSON.stringify(cartData));
+      } else {
+        setCartItems({});
+        localStorage.removeItem('cartItems');
       }
+    } catch (error) {
+      console.warn("Cart data unavailable:", error.message);
+      setCartItems({});
+      localStorage.removeItem('cartItems');
     }
   };
 
