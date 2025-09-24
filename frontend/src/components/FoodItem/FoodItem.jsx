@@ -157,13 +157,20 @@ const FoodItem = ({ image, name, price, desc, id }) => {
           className='food-item-image' 
           src={`${url}/images/${image}`} 
           alt={name}
+          loading="lazy"
           onError={(e) => {
-            // Use local image as fallback
+            // Use local image as fallback with better error handling
             const localImage = localImages[image];
-            if (localImage && !e.target.src.includes('blob:')) {
+            if (localImage && !e.target.src.includes('blob:') && !e.target.dataset.fallbackUsed) {
               e.target.src = localImage;
+              e.target.dataset.fallbackUsed = 'true';
             }
           }}
+          onLoad={(e) => {
+            // Ensure image is properly loaded
+            e.target.style.opacity = '1';
+          }}
+          style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
         />
         {currentItemCount === 0 ? (
           <img className='add' onClick={() => addToCart(id)} src={assets.add_icon_white} alt="Add to cart" />

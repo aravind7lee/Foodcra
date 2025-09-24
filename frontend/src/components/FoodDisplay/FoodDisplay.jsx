@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import "./FoodDisplay.css";
 import FoodItem from "../FoodItem/FoodItem";
+import FoodItemSkeleton from "../FoodItem/FoodItemSkeleton";
 import { StoreContext } from "../../Context/StoreContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
@@ -12,10 +13,14 @@ const FoodDisplay = ({ category = "All" }) => {
   const lastScrolledKeyRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check if data is loaded
+  // Check if data is loaded - Fixed condition
   useEffect(() => {
-    if (food_list && food_list.length >= 0) {
-      setIsLoading(false);
+    if (food_list && food_list.length > 0) {
+      // Add small delay to ensure all data is properly loaded
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [food_list]);
 
@@ -56,7 +61,10 @@ const FoodDisplay = ({ category = "All" }) => {
 
       <div className="food-display-list">
         {isLoading ? (
-          <LoadingSpinner message="Loading delicious food..." />
+          // Show skeleton items while loading
+          Array.from({ length: 8 }, (_, index) => (
+            <FoodItemSkeleton key={`skeleton-${index}`} />
+          ))
         ) : listToShow && listToShow.length > 0 ? (
           listToShow.map((item) => {
             if (category === "All" || category === item.category) {

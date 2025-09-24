@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState, useRef, useCallback } from "react";
+import { createContext, useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { food_list as defaultFoodList, menu_list } from "../assets/assets";
 import axios from "axios";
 import API_CONFIG from "../config/api";
@@ -35,7 +35,7 @@ const StoreContextProvider = (props) => {
     [ratingsByItem]
   );
 
-  // Fetch shared ratings with proper error handling
+  // Fetch shared ratings with proper error handling - Fixed random ratings
   const fetchRatingsBulk = useCallback(
     async (foodIds) => {
       if (!Array.isArray(foodIds) || foodIds.length === 0) return;
@@ -52,10 +52,10 @@ const StoreContextProvider = (props) => {
         console.warn("Ratings unavailable, using defaults:", error.message);
       }
       
-      // Set default values
+      // Set consistent default values - no random ratings
       const defaultRatings = {};
       foodIds.forEach(id => {
-        defaultRatings[id] = { avgRating: 4.2, totalRatings: Math.floor(Math.random() * 50) + 10 };
+        defaultRatings[id] = { avgRating: 0, totalRatings: 0 };
       });
       setRatingsByItem(prev => ({ ...prev, ...defaultRatings }));
     },
@@ -214,10 +214,19 @@ const StoreContextProvider = (props) => {
     }
   };
 
+  // Create food lookup map for better performance
+  const foodLookupMap = useMemo(() => {
+    const map = {};
+    food_list.forEach(item => {
+      map[item._id] = item;
+    });
+    return map;
+  }, [food_list]);
+
   const getTotalCartAmount = () => {
     let totalAmount = 0;
     for (const id in cartItems) {
-      const itemInfo = food_list.find((p) => p._id === id);
+      const itemInfo = foodLookupMap[id]; // Use O(1) lookup instead of find
       if (itemInfo && cartItems[id] > 0) {
         const price = Number(itemInfo.price) || 0;
         const qty = Number(cartItems[id]) || 0;
@@ -317,22 +326,45 @@ const StoreContextProvider = (props) => {
     setFilteredFoodList(food_list);
   };
 
-  // Load ratings when food list changes
+  // Load ratings when food list changes - with proper initialization
   useEffect(() => {
     if (Array.isArray(food_list) && food_list.length > 0) {
       setFilteredFoodList(food_list);
       buildSearchIndex(food_list);
       
-      // Fetch shared ratings
+      // Initialize ratings with empty state first to prevent random values
       const foodIds = food_list.map(item => item._id);
-      fetchRatingsBulk(foodIds);
+      const initialRatings = {};
+      foodIds.forEach(id => {
+        initialRatings[id] = { avgRating: 0, totalRatings: 0 };
+      });
+      setRatingsByItem(prev => ({ ...prev, ...initialRatings }));
       
-      // Fetch user's personal ratings if logged in
-      if (token) {
-        fetchMyRatings(foodIds);
-      }
+      // Then fetch actual ratings
+      setTimeout(() => {
+        fetchRatingsBulk(foodIds);
+        
+        // Fetch user's personal ratings if logged in
+        if (token) {
+          fetchMyRatings(foodIds);
+        }
+      }, 50);
     }
   }, [food_list, fetchRatingsBulk, fetchMyRatings, token]);
+
+  // Preload critical images
+  const preloadImages = useCallback((foodList) => {
+    if (!Array.isArray(foodList) || foodList.length === 0) return;
+    
+    // Preload first 6 images for faster initial display
+    foodList.slice(0, 6).forEach(item => {
+      if (item.image) {
+        const img = new Image();
+        img.src = `${url}/images/${item.image}`;
+        // Don't wait for these to load, just start the process
+      }
+    });
+  }, [url]);
 
   // Initial data load
   useEffect(() => {
@@ -345,6 +377,13 @@ const StoreContextProvider = (props) => {
       }
     })();
   }, []);
+
+  // Preload images when food list is available
+  useEffect(() => {
+    if (food_list && food_list.length > 0) {
+      preloadImages(food_list);
+    }
+  }, [food_list, preloadImages]);
 
   // Context value
   const contextValue = {
@@ -367,6 +406,7 @@ const StoreContextProvider = (props) => {
     applyLoyaltyDiscount,
     groceryList,
     addIngredientsToGrocery,
+    foodLookupMap,
 
     // Search utilities
     lastQuery,

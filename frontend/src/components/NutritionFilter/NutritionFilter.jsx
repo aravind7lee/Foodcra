@@ -67,6 +67,7 @@ const NutritionFilter = () => {
     cartItems = {},
     addToCart,
     removeFromCart,
+    foodLookupMap = {},
   } = useContext(StoreContext) || {};
 
 
@@ -598,7 +599,7 @@ const NutritionFilter = () => {
               <>
                 <ul className="nf-cart-list">
                   {Object.entries(cartItems).map(([id, qty]) => {
-                    const product = food_list.find(p => String(p._id) === String(id));
+                    const product = foodLookupMap?.[id];
                     if (!product) return null;
                     
                     return (
