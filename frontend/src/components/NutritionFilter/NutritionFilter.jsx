@@ -3,54 +3,13 @@ import { StoreContext } from "../../Context/StoreContext";
 import "./NutritionFilter.css";
 
 const DEFAULT_FILTERS = {
-  minCalories: 1230,
-  minProtein: 73,
-  maxCarbs: 217,
-  maxFat: 84,
+  minCalories: 150,
+  minProtein: 5,
+  maxCarbs: 70,
+  maxFat: 40,
 };
 
-const NUTRITION_DATA = [
-  { Name: "Greek Salad", Calories: 250, Protein: 5, Carbs: 10, Fat: 18 },
-  { Name: "Veg Salad", Calories: 200, Protein: 3, Carbs: 15, Fat: 12 },
-  { Name: "Clover Salad", Calories: 220, Protein: 4, Carbs: 12, Fat: 14 },
-  { Name: "Chicken Salad", Calories: 300, Protein: 25, Carbs: 6, Fat: 20 },
-  { Name: "Lasagna Rolls", Calories: 400, Protein: 15, Carbs: 45, Fat: 18 },
-  { Name: "Peri Peri Rolls", Calories: 350, Protein: 12, Carbs: 40, Fat: 15 },
-  { Name: "Chicken Rolls", Calories: 450, Protein: 20, Carbs: 40, Fat: 25 },
-  { Name: "Veg Rolls", Calories: 350, Protein: 10, Carbs: 45, Fat: 10 },
-  { Name: "Ripple Ice Cream", Calories: 200, Protein: 4, Carbs: 25, Fat: 12 },
-  { Name: "Fruit Ice Cream", Calories: 180, Protein: 3, Carbs: 22, Fat: 10 },
-  { Name: "Jar Ice Cream", Calories: 150, Protein: 3, Carbs: 20, Fat: 8 },
-  { Name: "Vanilla Ice Cream", Calories: 200, Protein: 4, Carbs: 24, Fat: 11 },
-  { Name: "Chicken Sandwich", Calories: 350, Protein: 25, Carbs: 30, Fat: 15 },
-  { Name: "Vegan Sandwich", Calories: 300, Protein: 12, Carbs: 45, Fat: 10 },
-  { Name: "Grilled Sandwich", Calories: 400, Protein: 20, Carbs: 50, Fat: 15 },
-  { Name: "Bread Sandwich", Calories: 280, Protein: 10, Carbs: 35, Fat: 12 },
-  { Name: "Cup Cake", Calories: 250, Protein: 4, Carbs: 30, Fat: 12 },
-  { Name: "Vegan Cake", Calories: 200, Protein: 5, Carbs: 35, Fat: 10 },
-  { Name: "Butterscotch Cake", Calories: 300, Protein: 5, Carbs: 40, Fat: 15 },
-  { Name: "Sliced Cake", Calories: 280, Protein: 4, Carbs: 38, Fat: 12 },
-  { Name: "Garlic Mushroom", Calories: 180, Protein: 5, Carbs: 8, Fat: 10 },
-  { Name: "Fried Cauliflower", Calories: 250, Protein: 6, Carbs: 15, Fat: 12 },
-  { Name: "Mix Veg Pulao", Calories: 220, Protein: 5, Carbs: 35, Fat: 8 },
-  { Name: "Rice Zucchini", Calories: 200, Protein: 4, Carbs: 30, Fat: 9 },
-  { Name: "Cheese Pasta", Calories: 400, Protein: 12, Carbs: 45, Fat: 20 },
-  { Name: "Tomato Pasta", Calories: 350, Protein: 10, Carbs: 50, Fat: 15 },
-  { Name: "Creamy Pasta", Calories: 450, Protein: 15, Carbs: 40, Fat: 25 },
-  { Name: "Chicken Pasta", Calories: 400, Protein: 10, Carbs: 48, Fat: 18 },
-  { Name: "Butter Noodles", Calories: 350, Protein: 8, Carbs: 55, Fat: 10 },
-  { Name: "Veg Noodles", Calories: 300, Protein: 7, Carbs: 50, Fat: 8 },
-  { Name: "Somen Noodles", Calories: 400, Protein: 10, Carbs: 60, Fat: 12 },
-  { Name: "Cooked Noodles", Calories: 320, Protein: 9, Carbs: 58, Fat: 10 },
-  { Name: "BBQ Chicken", Calories: 600, Protein: 35, Carbs: 12, Fat: 40 },
-  { Name: "Spicy Chicken Wings", Calories: 300, Protein: 20, Carbs: 15, Fat: 12 },
-  { Name: "Tandoori Chicken", Calories: 450, Protein: 30, Carbs: 10, Fat: 25 },
-  { Name: "Grilled Chicken", Calories: 450, Protein: 30, Carbs: 10, Fat: 25 },
-  { Name: "Chicken Biryani", Calories: 500, Protein: 28, Carbs: 65, Fat: 15 },
-  { Name: "Mutton Biryani", Calories: 550, Protein: 32, Carbs: 60, Fat: 18 },
-  { Name: "Veg Biryani", Calories: 400, Protein: 12, Carbs: 70, Fat: 10 },
-  { Name: "Prawn Biryani", Calories: 480, Protein: 25, Carbs: 62, Fat: 12 },
-];
+
 
 const parseNum = (v) => {
   if (v === "" || v === null || v === undefined) return null;
@@ -99,33 +58,16 @@ const NutritionFilter = () => {
 
   const debounceRef = useRef(null);
 
-  // Create nutrition map from the NUTRITION_DATA array
-  const nutritionMap = useMemo(() => {
-    const map = {};
-    NUTRITION_DATA.forEach(item => {
-      map[item.Name] = {
-        calories: item.Calories,
-        protein: item.Protein,
-        carbs: item.Carbs,
-        fat: item.Fat
-      };
-    });
-    return map;
-  }, []);
 
-  // Enhanced nutrient helper that uses nutritionMap
+
+  // Real-time nutrient helper using actual food data
   const getNutrient = (item, key) => {
     if (!item) return 0;
     
-    // First try to get from nutritionMap using item name
-    const nutrition = nutritionMap[item.name] || {};
-    if (nutrition[key] !== undefined) return nutrition[key];
-    
-    // Fallback to existing properties
+    // Use actual nutrition data from food items
     if (typeof item[key] === "number") return item[key];
-    if (item.nutrition?.[key]) return item.nutrition[key];
-    if (item.nutrients?.[key]) return item.nutrients[key];
     
+    // Handle different property names
     switch(key) {
       case "calories": return item.calories || item.kcal || item.energy || 0;
       case "protein": return item.protein || item.protein_g || 0;
@@ -283,9 +225,7 @@ const NutritionFilter = () => {
         setAppliedFilters(flts);
         setFilterStatus(final.length > 0 ? "success" : "no-results");
         
-        // Log for debugging
-        console.log("Applied filters:", flts);
-        console.log("Top matches:", final.slice(0, 8).map(i => i.name));
+
       } catch (error) {
         console.error("Filtering error:", error);
         setFilterStatus("error");
@@ -447,7 +387,7 @@ const NutritionFilter = () => {
                   name="minCalories" 
                   value={filters.minCalories} 
                   onChange={handleChange} 
-                  placeholder="e.g. 1230" 
+                  placeholder="e.g. 150" 
                   min="0" 
                 />
                 <input 
@@ -456,7 +396,7 @@ const NutritionFilter = () => {
                   min="0" 
                   max="3000" 
                   step="10" 
-                  value={filters.minCalories || 1230} 
+                  value={filters.minCalories || 150} 
                   onChange={e => handleRangeChange("minCalories", e.target.value)} 
                 />
                 <small className="nf-help">Minimum calories per item</small>
@@ -470,7 +410,7 @@ const NutritionFilter = () => {
                   name="minProtein" 
                   value={filters.minProtein} 
                   onChange={handleChange} 
-                  placeholder="e.g. 73" 
+                  placeholder="e.g. 5" 
                   min="0" 
                 />
                 <input 
@@ -479,7 +419,7 @@ const NutritionFilter = () => {
                   min="0" 
                   max="200" 
                   step="1" 
-                  value={filters.minProtein || 73} 
+                  value={filters.minProtein || 5} 
                   onChange={e => handleRangeChange("minProtein", e.target.value)} 
                 />
                 <small className="nf-help">Minimum protein per item</small>
@@ -495,7 +435,7 @@ const NutritionFilter = () => {
                   name="maxCarbs" 
                   value={filters.maxCarbs} 
                   onChange={handleChange} 
-                  placeholder="e.g. 217" 
+                  placeholder="e.g. 70" 
                   min="0" 
                 />
                 <input 
@@ -504,7 +444,7 @@ const NutritionFilter = () => {
                   min="0" 
                   max="400" 
                   step="1" 
-                  value={filters.maxCarbs || 217} 
+                  value={filters.maxCarbs || 70} 
                   onChange={e => handleRangeChange("maxCarbs", e.target.value)} 
                 />
                 <small className="nf-help">Upper limit for carbs</small>
@@ -518,7 +458,7 @@ const NutritionFilter = () => {
                   name="maxFat" 
                   value={filters.maxFat} 
                   onChange={handleChange} 
-                  placeholder="e.g. 84" 
+                  placeholder="e.g. 40" 
                   min="0" 
                 />
                 <input 
@@ -527,7 +467,7 @@ const NutritionFilter = () => {
                   min="0" 
                   max="200" 
                   step="1" 
-                  value={filters.maxFat || 84} 
+                  value={filters.maxFat || 40} 
                   onChange={e => handleRangeChange("maxFat", e.target.value)} 
                 />
                 <small className="nf-help">Upper limit for fat</small>
@@ -688,7 +628,7 @@ const NutritionFilter = () => {
         <aside className="nf-right">
           <div className="nf-section nf-summary">
             <h3>Live Summary</h3>
-            <p className="muted">{filteredCount} results</p>
+            <p className="muted">{filteredCount} results found</p>
 
             <div className="nf-target-overview">
               <div className="nf-ov-row">
@@ -711,6 +651,40 @@ const NutritionFilter = () => {
                 <div className="nf-ov-value">{appliedFilters.maxFat || "—"}</div>
               </div>
             </div>
+          </div>
+
+          <div className="nf-section nf-results">
+            <h3>Real-time Results</h3>
+            {filteredCount === 0 ? (
+              <div className="nf-empty">No items match your criteria</div>
+            ) : (
+              <div className="nf-results-list">
+                {topMatches.slice(0, 6).map(item => (
+                  <div className="nf-result-item" key={item._id}>
+                    <div className="nf-result-name">{item.name}</div>
+                    <div className="nf-result-nutrition">
+                      <span className="nf-nut-item">{getNutrient(item, "calories")} cal</span>
+                      <span className="nf-nut-item">{getNutrient(item, "protein")}g P</span>
+                      <span className="nf-nut-item">{getNutrient(item, "carbs")}g C</span>
+                      <span className="nf-nut-item">{getNutrient(item, "fat")}g F</span>
+                    </div>
+                    <div className="nf-result-actions">
+                      <button 
+                        className="nf-btn small" 
+                        onClick={() => handleAddToCart(item)}
+                      >
+                        Add to Cart
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {filteredCount > 6 && (
+                  <div className="nf-more-results">
+                    +{filteredCount - 6} more items match your filters
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </aside>
       </div>

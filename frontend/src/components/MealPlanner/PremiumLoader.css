@@ -1,0 +1,166 @@
+/* PREMIUM LOADER ANIMATION */
+.premium-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.loader-content {
+  text-align: center;
+  color: white;
+}
+
+.loader-animation {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 2rem auto;
+}
+
+.food-icons {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+}
+
+.food-icon {
+  position: absolute;
+  font-size: 1.5rem;
+  animation: rotate 3s linear infinite;
+}
+
+.food-icon:nth-child(1) {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  animation-delay: 0s;
+}
+
+.food-icon:nth-child(2) {
+  top: 20%;
+  right: 0;
+  animation-delay: 0.6s;
+}
+
+.food-icon:nth-child(3) {
+  bottom: 20%;
+  right: 0;
+  animation-delay: 1.2s;
+}
+
+.food-icon:nth-child(4) {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  animation-delay: 1.8s;
+}
+
+.food-icon:nth-child(5) {
+  top: 20%;
+  left: 0;
+  animation-delay: 2.4s;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg) translateX(40px) rotate(0deg);
+    opacity: 0.3;
+    scale: 0.8;
+  }
+  50% {
+    opacity: 1;
+    scale: 1.2;
+  }
+  100% {
+    transform: rotate(360deg) translateX(40px) rotate(-360deg);
+    opacity: 0.3;
+    scale: 0.8;
+  }
+}
+
+.loader-circle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 120px;
+  height: 120px;
+  border: 3px solid rgba(255, 107, 53, 0.2);
+  border-top: 3px solid #FF6B35;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loader-inner {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border: 2px solid rgba(247, 147, 30, 0.2);
+  border-bottom: 2px solid #F7931E;
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite reverse;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loader-text h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  background: linear-gradient(135deg, #FF6B35, #F7931E);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.loading-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  background: #FF6B35;
+  border-radius: 50%;
+  animation: bounce 1.4s ease-in-out infinite both;
+}
+
+.loading-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}

@@ -16,11 +16,8 @@ const FoodDisplay = ({ category = "All" }) => {
   // Check if data is loaded - Fixed condition
   useEffect(() => {
     if (food_list && food_list.length > 0) {
-      // Add small delay to ensure all data is properly loaded
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, 100);
-      return () => clearTimeout(timer);
+      // Immediately show content without delay
+      setIsLoading(false);
     }
   }, [food_list]);
 
@@ -60,7 +57,7 @@ const FoodDisplay = ({ category = "All" }) => {
       <h2>Top dishes near you</h2>
 
       <div className="food-display-list">
-        {isLoading ? (
+        {isLoading && (!listToShow || listToShow.length === 0) ? (
           // Show skeleton items while loading
           Array.from({ length: 8 }, (_, index) => (
             <FoodItemSkeleton key={`skeleton-${index}`} />
