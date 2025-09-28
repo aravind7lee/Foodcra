@@ -420,7 +420,7 @@ const EnhancedMealPlanner = () => {
                 })}
               </div>
             </div>
-          ))
+          ))}
         </div>
       </div>
 
