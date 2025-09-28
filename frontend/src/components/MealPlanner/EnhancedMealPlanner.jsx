@@ -328,7 +328,7 @@ const EnhancedMealPlanner = () => {
             ))}
           </div>
           
-          {/* Days and Meals Grid */}
+          {/* Days and Meals Grid - Mobile Optimized */}
           {daysOfWeek.map(day => (
             <div key={day.name} className="smp-day-row">
               <div className="smp-day-header">
@@ -341,73 +341,86 @@ const EnhancedMealPlanner = () => {
                 </div>
               </div>
               
-              {mealSlots.map(slot => {
-                const selectedMeal = mealTimeSlots[slot.key][day.name];
-                return (
-                  <div key={`${day.name}-${slot.key}`} className="smp-meal-cell">
-                    <div className="smp-meal-selector">
-                      <select 
-                        className="smp-select"
-                        onChange={(e) => handleMealSelect(day.name, slot.key, e.target.value)}
-                        value={selectedMeal?._id || ''}
-                      >
-                        <option value="">Choose {slot.label.toLowerCase()}...</option>
-                        {getFilteredFoods().map(food => (
-                          <option key={food._id} value={food._id}>
-                            {food.name} - {currency}{food.price}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    {selectedMeal && (
-                      <div className="smp-selected-meal">
-                        <div className="smp-meal-image">
-                          <img 
-                            src={`${url}/images/${selectedMeal.image}`} 
-                            alt={selectedMeal.name}
-                            onError={(e) => {
-                              e.target.src = '/api/placeholder/60/60';
-                            }}
-                          />
+              {/* Mobile Meal Slots - Horizontal Scroll */}
+              <div className="smp-meal-slots">
+                {mealSlots.map(slot => {
+                  const selectedMeal = mealTimeSlots[slot.key][day.name];
+                  return (
+                    <div key={`${day.name}-${slot.key}`} className="smp-meal-cell">
+                      {/* Mobile Meal Slot Header */}
+                      <div className="smp-meal-slot-header">
+                        <span className="smp-slot-icon">{slot.icon}</span>
+                        <div className="smp-slot-info">
+                          <div className="smp-slot-name">{slot.label}</div>
+                          <div className="smp-slot-time">{slot.time}</div>
+                          <div className="smp-slot-calories">{slot.calories} kcal</div>
                         </div>
-                        <div className="smp-meal-details">
-                          <h4 className="smp-meal-name">{selectedMeal.name}</h4>
-                          <div className="smp-meal-stats">
-                            <span className="smp-stat">
-                              <span className="smp-stat-icon">💰</span>
-                              {currency}{selectedMeal.price}
-                            </span>
-                            {selectedMeal.calories && (
+                      </div>
+                      
+                      <div className="smp-meal-selector">
+                        <select 
+                          className="smp-select"
+                          onChange={(e) => handleMealSelect(day.name, slot.key, e.target.value)}
+                          value={selectedMeal?._id || ''}
+                        >
+                          <option value="">Choose {slot.label.toLowerCase()}...</option>
+                          {getFilteredFoods().map(food => (
+                            <option key={food._id} value={food._id}>
+                              {food.name} - {currency}{food.price}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      
+                      {selectedMeal && (
+                        <div className="smp-selected-meal">
+                          <div className="smp-meal-image">
+                            <img 
+                              src={`${url}/images/${selectedMeal.image}`} 
+                              alt={selectedMeal.name}
+                              onError={(e) => {
+                                e.target.src = '/api/placeholder/60/60';
+                              }}
+                            />
+                          </div>
+                          <div className="smp-meal-details">
+                            <h4 className="smp-meal-name">{selectedMeal.name}</h4>
+                            <div className="smp-meal-stats">
                               <span className="smp-stat">
-                                <span className="smp-stat-icon">🔥</span>
-                                {selectedMeal.calories} cal
+                                <span className="smp-stat-icon">💰</span>
+                                {currency}{selectedMeal.price}
                               </span>
+                              {selectedMeal.calories && (
+                                <span className="smp-stat">
+                                  <span className="smp-stat-icon">🔥</span>
+                                  {selectedMeal.calories} cal
+                                </span>
+                              )}
+                            </div>
+                            {(selectedMeal.protein || selectedMeal.carbs || selectedMeal.fat) && (
+                              <div className="smp-nutrition-mini">
+                                {selectedMeal.protein && <span className="smp-mini-stat">P: {selectedMeal.protein}g</span>}
+                                {selectedMeal.carbs && <span className="smp-mini-stat">C: {selectedMeal.carbs}g</span>}
+                                {selectedMeal.fat && <span className="smp-mini-stat">F: {selectedMeal.fat}g</span>}
+                              </div>
                             )}
                           </div>
-                          {(selectedMeal.protein || selectedMeal.carbs || selectedMeal.fat) && (
-                            <div className="smp-nutrition-mini">
-                              {selectedMeal.protein && <span className="smp-mini-stat">P: {selectedMeal.protein}g</span>}
-                              {selectedMeal.carbs && <span className="smp-mini-stat">C: {selectedMeal.carbs}g</span>}
-                              {selectedMeal.fat && <span className="smp-mini-stat">F: {selectedMeal.fat}g</span>}
-                            </div>
-                          )}
+                          
+                          <button 
+                            className="smp-add-btn"
+                            onClick={() => handleAddToCart(selectedMeal)}
+                          >
+                            <span className="smp-btn-icon">🛒</span>
+                            Add
+                          </button>
                         </div>
-                        
-                        <button 
-                          className="smp-add-btn"
-                          onClick={() => handleAddToCart(selectedMeal)}
-                        >
-                          <span className="smp-btn-icon">🛒</span>
-                          Add
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          ))}
+          ))
         </div>
       </div>
 
