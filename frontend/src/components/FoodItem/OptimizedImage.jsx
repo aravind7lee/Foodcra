@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const OptimizedImage = ({ src, alt, className, fallbackSrc, onError, ...props }) => {
+const OptimizedImage = ({ src, fallbackSrc, alt, className, onError, ...props }) => {
   const [imageSrc, setImageSrc] = useState(src);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -28,19 +28,17 @@ const OptimizedImage = ({ src, alt, className, fallbackSrc, onError, ...props })
 
   return (
     <img
+      {...props}
       src={imageSrc}
       alt={alt}
-      className={`${className} ${isLoaded ? 'loaded' : 'loading'}`}
+      className={className}
       onLoad={handleLoad}
       onError={handleError}
-      loading="eager"
       style={{
         opacity: 1,
-        transition: 'transform 0.3s ease',
-        backgroundColor: '#f5f5f5',
+        transition: 'opacity 0.2s ease',
         ...props.style
       }}
-      {...props}
     />
   );
 };

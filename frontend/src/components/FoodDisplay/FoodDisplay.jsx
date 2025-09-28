@@ -13,11 +13,12 @@ const FoodDisplay = ({ category = "All" }) => {
   const lastScrolledKeyRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check if data is loaded - Fixed condition
+  // Check if data is loaded - Immediate loading
   useEffect(() => {
     if (food_list && food_list.length > 0) {
-      // Immediately show content without delay
       setIsLoading(false);
+    } else {
+      setIsLoading(true);
     }
   }, [food_list]);
 
@@ -57,7 +58,7 @@ const FoodDisplay = ({ category = "All" }) => {
       <h2>Top dishes near you</h2>
 
       <div className="food-display-list">
-        {isLoading && (!listToShow || listToShow.length === 0) ? (
+        {isLoading ? (
           // Show skeleton items while loading
           Array.from({ length: 8 }, (_, index) => (
             <FoodItemSkeleton key={`skeleton-${index}`} />

@@ -120,9 +120,11 @@ const EnhancedMealPlanner = () => {
     return filtered;
   };
 
-  const getCaloriesForMeal = (meal) => {
-    // Only return actual calories from the meal data, no fallbacks
-    return parseInt(meal?.calories) || 0;
+  const getNutrientValue = (meal, nutrient) => {
+    if (!meal) return 0;
+    // Get actual nutrient values from meal data
+    const value = meal[nutrient] || meal.nutrition?.[nutrient] || 0;
+    return parseFloat(value) || 0;
   };
 
   const weeklyStats = useMemo(() => {
@@ -149,11 +151,11 @@ const EnhancedMealPlanner = () => {
       };
     }
     
-    const totalCalories = allMeals.reduce((sum, meal) => sum + getCaloriesForMeal(meal), 0);
+    const totalCalories = allMeals.reduce((sum, meal) => sum + getNutrientValue(meal, 'calories'), 0);
     const totalPrice = allMeals.reduce((sum, meal) => sum + (parseFloat(meal?.price) || 0), 0);
-    const totalProtein = allMeals.reduce((sum, meal) => sum + (parseFloat(meal?.protein) || 0), 0);
-    const totalCarbs = allMeals.reduce((sum, meal) => sum + (parseFloat(meal?.carbs) || 0), 0);
-    const totalFat = allMeals.reduce((sum, meal) => sum + (parseFloat(meal?.fat) || 0), 0);
+    const totalProtein = allMeals.reduce((sum, meal) => sum + getNutrientValue(meal, 'protein'), 0);
+    const totalCarbs = allMeals.reduce((sum, meal) => sum + getNutrientValue(meal, 'carbs'), 0);
+    const totalFat = allMeals.reduce((sum, meal) => sum + getNutrientValue(meal, 'fat'), 0);
     
     const avgCaloriesPerDay = totalCalories > 0 ? Math.round(totalCalories / 7) : 0;
     const avgPricePerDay = totalPrice > 0 ? Math.round(totalPrice / 7) : 0;
@@ -390,18 +392,18 @@ const EnhancedMealPlanner = () => {
                                 <span className="smp-stat-icon">💰</span>
                                 {currency}{selectedMeal.price}
                               </span>
-                              {selectedMeal.calories && (
+                              {getNutrientValue(selectedMeal, 'calories') > 0 && (
                                 <span className="smp-stat">
                                   <span className="smp-stat-icon">🔥</span>
-                                  {selectedMeal.calories} cal
+                                  {getNutrientValue(selectedMeal, 'calories')} cal
                                 </span>
                               )}
                             </div>
-                            {(selectedMeal.protein || selectedMeal.carbs || selectedMeal.fat) && (
+                            {(getNutrientValue(selectedMeal, 'protein') > 0 || getNutrientValue(selectedMeal, 'carbs') > 0 || getNutrientValue(selectedMeal, 'fat') > 0) && (
                               <div className="smp-nutrition-mini">
-                                {selectedMeal.protein && <span className="smp-mini-stat">P: {selectedMeal.protein}g</span>}
-                                {selectedMeal.carbs && <span className="smp-mini-stat">C: {selectedMeal.carbs}g</span>}
-                                {selectedMeal.fat && <span className="smp-mini-stat">F: {selectedMeal.fat}g</span>}
+                                {getNutrientValue(selectedMeal, 'protein') > 0 && <span className="smp-mini-stat">P: {getNutrientValue(selectedMeal, 'protein')}g</span>}
+                                {getNutrientValue(selectedMeal, 'carbs') > 0 && <span className="smp-mini-stat">C: {getNutrientValue(selectedMeal, 'carbs')}g</span>}
+                                {getNutrientValue(selectedMeal, 'fat') > 0 && <span className="smp-mini-stat">F: {getNutrientValue(selectedMeal, 'fat')}g</span>}
                               </div>
                             )}
                           </div>
@@ -442,32 +444,36 @@ const EnhancedMealPlanner = () => {
             <div className="smp-stat-content">
               <div className="smp-stat-value">{weeklyStats.totalMeals}</div>
               <div className="smp-stat-label">Total Meals</div>
-              {weeklyStats.totalMeals === 0 && <div className="smp-stat-sub">No meals selected</div>}
+              {weeklyStats.totalMeals === 0 ? (
+                <div className="smp-stat-sub">No meals selected</div>
+              ) : (
+                <div className="smp-stat-sub">{(weeklyStats.totalMeals / 7).toFixed(1)} meals/day</div>
+              )}
             </div>
           </div>
           
           <div className="smp-stat-card premium">
             <div className="smp-stat-icon">🔥</div>
             <div className="smp-stat-content">
-              <div className="smp-stat-value">{weeklyStats.totalCalories}</div>
+              <div className="smp-stat-value">{Math.round(weeklyStats.totalCalories)}</div>
               <div className="smp-stat-label">Weekly Calories</div>
-              <div className="smp-stat-sub">{weeklyStats.avgCaloriesPerDay}/day avg</div>
+              <div className="smp-stat-sub">{Math.round(weeklyStats.avgCaloriesPerDay)}/day avg</div>
             </div>
           </div>
           
           <div className="smp-stat-card premium">
             <div className="smp-stat-icon">💰</div>
             <div className="smp-stat-content">
-              <div className="smp-stat-value">{currency}{weeklyStats.totalPrice}</div>
+              <div className="smp-stat-value">{currency}{Math.round(weeklyStats.totalPrice)}</div>
               <div className="smp-stat-label">Total Cost</div>
-              <div className="smp-stat-sub">{currency}{weeklyStats.avgPricePerDay}/day avg</div>
+              <div className="smp-stat-sub">{currency}{Math.round(weeklyStats.avgPricePerDay)}/day avg</div>
             </div>
           </div>
           
           <div className="smp-stat-card premium">
             <div className="smp-stat-icon">💪</div>
             <div className="smp-stat-content">
-              <div className="smp-stat-value">{weeklyStats.totalProtein}g</div>
+              <div className="smp-stat-value">{Math.round(weeklyStats.totalProtein)}g</div>
               <div className="smp-stat-label">Total Protein</div>
               <div className="smp-stat-sub">{weeklyStats.proteinPercentage}% of macros</div>
             </div>
@@ -482,23 +488,23 @@ const EnhancedMealPlanner = () => {
                 <div className="smp-macro-item">
                   <span className="smp-macro-label">Protein ({weeklyStats.proteinPercentage}%)</span>
                   <div className="smp-macro-bar">
-                    <div className="smp-macro-fill protein" style={{ width: `${weeklyStats.proteinPercentage}%` }}></div>
+                    <div className="smp-macro-fill protein" style={{ width: `${Math.min(weeklyStats.proteinPercentage, 100)}%` }}></div>
                   </div>
-                  <span className="smp-macro-value">{weeklyStats.totalProtein}g</span>
+                  <span className="smp-macro-value">{Math.round(weeklyStats.totalProtein)}g</span>
                 </div>
                 <div className="smp-macro-item">
                   <span className="smp-macro-label">Carbs ({weeklyStats.carbsPercentage}%)</span>
                   <div className="smp-macro-bar">
-                    <div className="smp-macro-fill carbs" style={{ width: `${weeklyStats.carbsPercentage}%` }}></div>
+                    <div className="smp-macro-fill carbs" style={{ width: `${Math.min(weeklyStats.carbsPercentage, 100)}%` }}></div>
                   </div>
-                  <span className="smp-macro-value">{weeklyStats.totalCarbs}g</span>
+                  <span className="smp-macro-value">{Math.round(weeklyStats.totalCarbs)}g</span>
                 </div>
                 <div className="smp-macro-item">
                   <span className="smp-macro-label">Fats ({weeklyStats.fatPercentage}%)</span>
                   <div className="smp-macro-bar">
-                    <div className="smp-macro-fill fats" style={{ width: `${weeklyStats.fatPercentage}%` }}></div>
+                    <div className="smp-macro-fill fats" style={{ width: `${Math.min(weeklyStats.fatPercentage, 100)}%` }}></div>
                   </div>
-                  <span className="smp-macro-value">{weeklyStats.totalFat}g</span>
+                  <span className="smp-macro-value">{Math.round(weeklyStats.totalFat)}g</span>
                 </div>
               </div>
             </div>

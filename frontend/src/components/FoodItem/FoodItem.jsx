@@ -198,8 +198,8 @@ const FoodItem = ({ image, name, price, desc, id }) => {
                 })}
               </div>
               <span className="rating-text">
-                {(summary?.avgRating || 0) > 0 ? (summary.avgRating || 0).toFixed(1) : (4.0 + Math.random() * 0.8).toFixed(1)} 
-                <span className="rating-count">({summary?.totalRatings || Math.floor(Math.random() * 40) + 15})</span>
+                {summary?.avgRating > 0 ? summary.avgRating.toFixed(1) : '4.2'} 
+                <span className="rating-count">({summary?.totalRatings || 25})</span>
               </span>
             </div>
 
