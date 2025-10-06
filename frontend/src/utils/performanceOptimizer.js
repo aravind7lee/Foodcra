@@ -4,14 +4,12 @@
 export const preloadCriticalImages = (imageList) => {
   if (!Array.isArray(imageList)) return;
   
-  // Create a document fragment to avoid DOM manipulation
-  const fragment = document.createDocumentFragment();
-  
   imageList.slice(0, 8).forEach(imageSrc => {
-    if (imageSrc) {
+    if (imageSrc && !imageSrc.includes('/src/assets/')) {
       const img = new Image();
+      img.onload = () => {}; // Silent success
+      img.onerror = () => {}; // Silent failure
       img.src = imageSrc;
-      // Don't append to DOM, just trigger the load
     }
   });
 };

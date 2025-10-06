@@ -32,12 +32,14 @@ const FoodDisplay = ({ category = "All" }) => {
     if (!listToShow || !Array.isArray(listToShow)) return [];
     
     const urls = listToShow
-      .filter(item => item.image)
+      .filter(item => item.image && !item.image.includes('/src/assets/'))
       .map(item => `${url}/images/${item.image}`)
       .slice(0, 12); // Preload first 12 images
     
     // Preload immediately
-    preloadCriticalImages(urls);
+    if (urls.length > 0) {
+      preloadCriticalImages(urls);
+    }
     
     return urls;
   }, [listToShow, url]);

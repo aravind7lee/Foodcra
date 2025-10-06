@@ -21,7 +21,7 @@ class ImageCache {
       };
       img.onerror = () => {
         this.loading.delete(src);
-        reject(new Error(`Failed to load image: ${src}`));
+        resolve(null); // Resolve with null instead of rejecting
       };
       img.src = src;
     });
