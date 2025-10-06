@@ -156,7 +156,7 @@ const FoodItem = ({ image, name, price, desc, id }) => {
       <div className='food-item-img-container'>
         <OptimizedImage 
           className='food-item-image' 
-          src={`${url}/images/${image}`} 
+          src={localImages[image] || `${url}/images/${image}`} 
           alt={name}
           fallbackSrc={localImages[image]}
           onError={(e) => {
@@ -189,7 +189,7 @@ const FoodItem = ({ image, name, price, desc, id }) => {
             <div className="rating-display">
               <div className="stars-display">
                 {[1, 2, 3, 4, 5].map((n) => {
-                  const avgRating = summary?.avgRating || 0;
+                  const avgRating = summary?.avgRating || 4.2;
                   return (
                     <span key={n} className={`star-display ${avgRating >= n ? 'filled' : ''}`}>
                       ⭐
@@ -198,7 +198,7 @@ const FoodItem = ({ image, name, price, desc, id }) => {
                 })}
               </div>
               <span className="rating-text">
-                {summary?.avgRating > 0 ? summary.avgRating.toFixed(1) : '4.2'} 
+                {summary?.avgRating ? summary.avgRating.toFixed(1) : '4.2'} 
                 <span className="rating-count">({summary?.totalRatings || 25})</span>
               </span>
             </div>

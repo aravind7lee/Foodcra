@@ -29,7 +29,15 @@ const AppLayout = () => {
   return (
     <>
       <OfflineNotice />
-      <ToastContainer />
+      <ToastContainer 
+        position="top-center"
+        autoClose={6000}
+        hideProgressBar={false}
+        closeOnClick={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={false}
+      />
       {showLogin && <LoginPopup setShowLogin={setShowLogin} />}
       <div className="app">
         <Navbar setShowLogin={setShowLogin} />

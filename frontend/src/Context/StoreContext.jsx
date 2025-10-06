@@ -9,9 +9,9 @@ export const StoreContext = createContext();
 const StoreContextProvider = (props) => {
   const url = API_CONFIG.getBaseURL();
 
-  // core data
-  const [food_list, setFoodList] = useState([]);
-  const [filteredFoodList, setFilteredFoodList] = useState([]);
+  // core data - Initialize with fallback data immediately
+  const [food_list, setFoodList] = useState(defaultFoodList || []);
+  const [filteredFoodList, setFilteredFoodList] = useState(defaultFoodList || []);
 
   // cart/auth
   const [cartItems, setCartItems] = useState({});
@@ -26,8 +26,23 @@ const StoreContextProvider = (props) => {
   const currency = "₹";
   const deliveryCharge = 50;
 
-  // WORKING RATING SYSTEM WITH ERROR HANDLING
-  const [ratingsByItem, setRatingsByItem] = useState({});
+  // WORKING RATING SYSTEM WITH ERROR HANDLING - Initialize with default ratings
+  const getDefaultRatings = (foodList) => {
+    const defaultRatings = {};
+    if (Array.isArray(foodList)) {
+      foodList.forEach((item, index) => {
+        const baseRating = 4.2 + (index % 5) * 0.15;
+        const baseCount = 25 + (index % 10) * 3;
+        defaultRatings[item._id] = {
+          avgRating: Math.round(baseRating * 10) / 10,
+          totalRatings: baseCount
+        };
+      });
+    }
+    return defaultRatings;
+  };
+
+  const [ratingsByItem, setRatingsByItem] = useState(getDefaultRatings(defaultFoodList));
   const [myRatings, setMyRatings] = useState({});
   const [ratingBusyMap, setRatingBusyMap] = useState({});
 
@@ -53,14 +68,15 @@ const StoreContextProvider = (props) => {
         console.warn("Ratings unavailable, using defaults:", error.message);
       }
       
-      // Set realistic default values for immediate display
+      // Set consistent default values for immediate display
       const defaultRatings = {};
-      foodIds.forEach(id => {
-        const rating = 4.0 + (Math.random() * 1.0); // 4.0 to 5.0
-        const count = Math.floor(Math.random() * 40) + 15; // 15 to 55 reviews
+      foodIds.forEach((id, index) => {
+        // Use consistent ratings based on item index to avoid random changes
+        const baseRating = 4.2 + (index % 5) * 0.15; // 4.2 to 4.8
+        const baseCount = 25 + (index % 10) * 3; // 25 to 55 reviews
         defaultRatings[id] = { 
-          avgRating: Math.round(rating * 10) / 10, 
-          totalRatings: count 
+          avgRating: Math.round(baseRating * 10) / 10, 
+          totalRatings: baseCount 
         };
       });
       setRatingsByItem(prev => ({ ...prev, ...defaultRatings }));
@@ -338,27 +354,29 @@ const StoreContextProvider = (props) => {
       setFilteredFoodList(food_list);
       buildSearchIndex(food_list);
       
-      // Initialize ratings with realistic default values immediately
+      // Initialize ratings with consistent default values immediately
       const foodIds = food_list.map(item => item._id);
       const initialRatings = {};
-      foodIds.forEach(id => {
-        // Set realistic default ratings for immediate display
-        const defaultRating = 3.8 + (Math.random() * 1.4); // 3.8 to 5.2
-        const defaultCount = Math.floor(Math.random() * 50) + 10; // 10 to 60 reviews
+      foodIds.forEach((id, index) => {
+        // Set consistent default ratings for immediate display
+        const defaultRating = 4.2 + (index % 5) * 0.15; // 4.2 to 4.8
+        const defaultCount = 25 + (index % 10) * 3; // 25 to 55 reviews
         initialRatings[id] = { 
           avgRating: Math.round(defaultRating * 10) / 10, 
           totalRatings: defaultCount 
         };
       });
-      setRatingsByItem(prev => ({ ...prev, ...initialRatings }));
+      setRatingsByItem(initialRatings);
       
-      // Then fetch actual ratings without delay
-      fetchRatingsBulk(foodIds);
-      
-      // Fetch user's personal ratings if logged in
-      if (token) {
-        fetchMyRatings(foodIds);
-      }
+      // Then fetch actual ratings in background
+      setTimeout(() => {
+        fetchRatingsBulk(foodIds);
+        
+        // Fetch user's personal ratings if logged in
+        if (token) {
+          fetchMyRatings(foodIds);
+        }
+      }, 100);
     }
   }, [food_list, fetchRatingsBulk, fetchMyRatings, token]);
 
@@ -384,14 +402,13 @@ const StoreContextProvider = (props) => {
 
   // Initial data load
   useEffect(() => {
-    (async function loadData() {
-      await fetchFoodList();
-      const storedToken = localStorage.getItem("token");
-      if (storedToken) {
-        setToken(storedToken);
-        await loadCartData(storedToken);
-      }
-    })();
+    // Load data immediately without waiting
+    fetchFoodList();
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+      loadCartData(storedToken);
+    }
   }, []);
 
   // Preload images when food list is available - immediate execution

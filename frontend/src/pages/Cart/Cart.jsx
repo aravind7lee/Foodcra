@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import './Cart.css';
 import { StoreContext } from '../../Context/StoreContext';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const Cart = () => {
   const {
@@ -12,8 +13,23 @@ const Cart = () => {
     url,
     currency,
     deliveryCharge,
+    token,
   } = useContext(StoreContext);
   const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    if (!token) {
+      toast.error("To place an order sign in first", {
+        autoClose: 6000,
+        closeOnClick: false,
+        pauseOnHover: false,
+        pauseOnFocusLoss: false,
+        draggable: false
+      });
+      return;
+    }
+    navigate('/order');
+  };
 
   return (
     <div className='cart'>
@@ -63,7 +79,7 @@ const Cart = () => {
               <b>{currency}{getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + deliveryCharge}</b>
             </div>
           </div>
-          <button onClick={() => navigate('/order')}>PROCEED TO CHECKOUT</button>
+          <button onClick={handleCheckout}>PROCEED TO CHECKOUT</button>
         </div>
         <div className="cartitems-promocode">
                     <p>If you have a promo code, Enter it here</p>

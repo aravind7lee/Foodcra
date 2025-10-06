@@ -15,6 +15,11 @@ router.post("/rate", authMiddleware, async (req, res) => {
       return res.json({ success: false, message: "Rating must be between 1 and 5" });
     }
 
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(foodId)) {
+      return res.json({ success: false, message: "Invalid food ID" });
+    }
+
     // Check if user already rated this food
     const existingRating = await Rating.findOne({ foodId, userId });
     
@@ -39,6 +44,11 @@ router.post("/rate", authMiddleware, async (req, res) => {
 router.get("/summary/:foodId", async (req, res) => {
   try {
     const { foodId } = req.params;
+    
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(foodId)) {
+      return res.json({ success: true, avgRating: 0, totalRatings: 0 });
+    }
     
     const result = await Rating.aggregate([
       { $match: { foodId: new mongoose.Types.ObjectId(foodId) } },
@@ -73,6 +83,11 @@ router.get("/user/:foodId", authMiddleware, async (req, res) => {
     const { foodId } = req.params;
     const userId = req.body.userId;
     
+    // Validate ObjectId
+    if (!mongoose.Types.ObjectId.isValid(foodId)) {
+      return res.json({ success: true, rating: 0 });
+    }
+    
     const userRating = await Rating.findOne({ foodId, userId });
     res.json({ success: true, rating: userRating ? userRating.rating : 0 });
   } catch (error) {
@@ -90,16 +105,22 @@ router.post("/bulk", async (req, res) => {
       return res.json({ success: false, message: "foodIds must be an array" });
     }
 
-    const results = await Rating.aggregate([
-      { $match: { foodId: { $in: foodIds.map(id => new mongoose.Types.ObjectId(id)) } } },
-      { 
-        $group: { 
-          _id: "$foodId", 
-          avgRating: { $avg: "$rating" }, 
-          totalRatings: { $sum: 1 }
-        } 
-      }
-    ]);
+    // Filter valid ObjectIds only
+    const validObjectIds = foodIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+    
+    let results = [];
+    if (validObjectIds.length > 0) {
+      results = await Rating.aggregate([
+        { $match: { foodId: { $in: validObjectIds.map(id => new mongoose.Types.ObjectId(id)) } } },
+        { 
+          $group: { 
+            _id: "$foodId", 
+            avgRating: { $avg: "$rating" }, 
+            totalRatings: { $sum: 1 }
+          } 
+        }
+      ]);
+    }
 
     const ratingsMap = {};
     results.forEach(result => {
@@ -133,10 +154,16 @@ router.post("/user-bulk", authMiddleware, async (req, res) => {
       return res.json({ success: false, message: "foodIds must be an array" });
     }
 
-    const userRatings = await Rating.find({ 
-      foodId: { $in: foodIds.map(id => new mongoose.Types.ObjectId(id)) },
-      userId: userId
-    });
+    // Filter valid ObjectIds only
+    const validObjectIds = foodIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+    
+    let userRatings = [];
+    if (validObjectIds.length > 0) {
+      userRatings = await Rating.find({ 
+        foodId: { $in: validObjectIds.map(id => new mongoose.Types.ObjectId(id)) },
+        userId: userId
+      });
+    }
 
     const ratingsMap = {};
     userRatings.forEach(rating => {
