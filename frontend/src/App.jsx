@@ -17,6 +17,7 @@ import FoodDisplay from './components/FoodDisplay/FoodDisplay';
 import StickyCart from './components/StickyCart/StickyCart';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import OfflineNotice from './components/OfflineNotice/OfflineNotice';
+import Contact from './pages/Contact/Contact';
 
 
 const AppLayout = () => {
@@ -51,6 +52,7 @@ const AppLayout = () => {
           <Route path="/verify" element={<Verify />} />
           <Route path="/mealplanner" element={<MealPlanner />} />
           <Route path="/app-download" element={<AppDownload />} />
+          <Route path="/contact" element={<Contact />} />
         </Routes>
         {showStickyCart && <StickyCart />}
       </div>

@@ -1,17 +1,13 @@
-import React, { useContext, useState, useEffect, useMemo } from 'react';
+import React, { useContext, useState, useMemo } from 'react';
 import { StoreContext } from '../../Context/StoreContext';
-import PremiumLoader from './PremiumLoader';
 import './EnhancedMealPlanner.css';
-import './PremiumLoader.css';
 
 const EnhancedMealPlanner = () => {
   const { food_list, addToCart, url, currency } = useContext(StoreContext);
   const [selectedDay, setSelectedDay] = useState('Monday');
-  const [viewMode, setViewMode] = useState('week');
   const [selectedMealType, setSelectedMealType] = useState('all');
   const [dietaryFilter, setDietaryFilter] = useState('all');
   const [budgetRange, setBudgetRange] = useState([0, 1000]);
-  const [calorieTarget, setCalorieTarget] = useState(2000);
   const [showNutritionBreakdown, setShowNutritionBreakdown] = useState(false);
   const [mealTimeSlots, setMealTimeSlots] = useState({
     breakfast: {},
@@ -43,10 +39,7 @@ const EnhancedMealPlanner = () => {
   const dietaryFilters = [
     { value: 'all', label: 'All Diets', icon: '🍽️' },
     { value: 'veg', label: 'Vegetarian', icon: '🌱' },
-    { value: 'vegan', label: 'Vegan', icon: '🥬' },
-    { value: 'keto', label: 'Keto', icon: '🥑' },
-    { value: 'protein', label: 'High Protein', icon: '💪' },
-    { value: 'lowcarb', label: 'Low Carb', icon: '🥩' }
+    { value: 'protein', label: 'High Protein', icon: '💪' }
   ];
 
   const mealSlots = [
@@ -57,6 +50,16 @@ const EnhancedMealPlanner = () => {
   ];
 
   const handleMealSelect = (day, slot, mealId) => {
+    if (!mealId) {
+      setMealTimeSlots(prev => ({
+        ...prev,
+        [slot]: {
+          ...prev[slot],
+          [day]: null
+        }
+      }));
+      return;
+    }
     const selectedMeal = food_list.find(food => food._id === mealId);
     setMealTimeSlots(prev => ({
       ...prev,
@@ -66,8 +69,6 @@ const EnhancedMealPlanner = () => {
       }
     }));
   };
-
-
 
   const handleAddToCart = (meal) => {
     if (meal) {
@@ -85,6 +86,7 @@ const EnhancedMealPlanner = () => {
     
     if (allMeals.length > 0) {
       allMeals.forEach(meal => addToCart(meal._id));
+      alert(`${allMeals.length} meals added to cart!`);
     }
   };
 
@@ -98,7 +100,7 @@ const EnhancedMealPlanner = () => {
   };
 
   const getFilteredFoods = () => {
-    let filtered = food_list;
+    let filtered = food_list || [];
     
     if (selectedMealType !== 'all') {
       filtered = filtered.filter(food => food.category === selectedMealType);
@@ -106,25 +108,22 @@ const EnhancedMealPlanner = () => {
     
     if (dietaryFilter !== 'all') {
       filtered = filtered.filter(food => {
-        switch (dietaryFilter) {
-          case 'veg':
-            return food.category === 'Pure Veg' || food.category === 'Salad';
-          case 'protein':
-            return food.category === 'Grill & BBQ' || food.name.toLowerCase().includes('protein');
-          default:
-            return true;
+        if (dietaryFilter === 'veg') {
+          return food.category === 'Pure Veg' || food.category === 'Salad';
         }
+        if (dietaryFilter === 'protein') {
+          return food.category === 'Grill & BBQ' || food.name.toLowerCase().includes('protein');
+        }
+        return true;
       });
     }
     
+    filtered = filtered.filter(food => {
+      const price = parseFloat(food.price) || 0;
+      return price <= budgetRange[1];
+    });
+    
     return filtered;
-  };
-
-  const getNutrientValue = (meal, nutrient) => {
-    if (!meal) return 0;
-    // Get actual nutrient values from meal data
-    const value = meal[nutrient] || meal.nutrition?.[nutrient] || 0;
-    return parseFloat(value) || 0;
   };
 
   const weeklyStats = useMemo(() => {
@@ -141,51 +140,23 @@ const EnhancedMealPlanner = () => {
         totalCalories: 0,
         totalPrice: 0,
         avgCaloriesPerDay: 0,
-        avgPricePerDay: 0,
-        totalProtein: 0,
-        totalCarbs: 0,
-        totalFat: 0,
-        proteinPercentage: 0,
-        carbsPercentage: 0,
-        fatPercentage: 0
+        avgPricePerDay: 0
       };
     }
     
-    const totalCalories = allMeals.reduce((sum, meal) => sum + getNutrientValue(meal, 'calories'), 0);
     const totalPrice = allMeals.reduce((sum, meal) => sum + (parseFloat(meal?.price) || 0), 0);
-    const totalProtein = allMeals.reduce((sum, meal) => sum + getNutrientValue(meal, 'protein'), 0);
-    const totalCarbs = allMeals.reduce((sum, meal) => sum + getNutrientValue(meal, 'carbs'), 0);
-    const totalFat = allMeals.reduce((sum, meal) => sum + getNutrientValue(meal, 'fat'), 0);
-    
-    const avgCaloriesPerDay = totalCalories > 0 ? Math.round(totalCalories / 7) : 0;
-    const avgPricePerDay = totalPrice > 0 ? Math.round(totalPrice / 7) : 0;
-    
-    // Calculate actual macronutrient percentages
-    const totalMacros = totalProtein + totalCarbs + totalFat;
-    const proteinPercentage = totalMacros > 0 ? Math.round((totalProtein / totalMacros) * 100) : 0;
-    const carbsPercentage = totalMacros > 0 ? Math.round((totalCarbs / totalMacros) * 100) : 0;
-    const fatPercentage = totalMacros > 0 ? Math.round((totalFat / totalMacros) * 100) : 0;
     
     return {
       totalMeals: allMeals.length,
-      totalCalories,
+      totalCalories: 0,
       totalPrice,
-      avgCaloriesPerDay,
-      avgPricePerDay,
-      totalProtein: Math.round(totalProtein),
-      totalCarbs: Math.round(totalCarbs),
-      totalFat: Math.round(totalFat),
-      proteinPercentage,
-      carbsPercentage,
-      fatPercentage
+      avgCaloriesPerDay: 0,
+      avgPricePerDay: Math.round(totalPrice / 7)
     };
   }, [mealTimeSlots]);
 
   return (
-    <>
-
-      <div className="smp-container">
-      {/* Premium Hero Section */}
+    <div className="smp-container">
       <div className="smp-hero">
         <div className="smp-hero-bg"></div>
         <div className="smp-hero-content">
@@ -196,8 +167,7 @@ const EnhancedMealPlanner = () => {
               <span className="smp-hero-badge">AI Powered</span>
             </h1>
             <p className="smp-hero-subtitle">
-              Experience the future of meal planning with AI-driven nutrition insights, 
-              personalized recommendations, and seamless ordering
+              Plan your weekly meals with personalized recommendations and seamless ordering
             </p>
           </div>
           
@@ -218,7 +188,6 @@ const EnhancedMealPlanner = () => {
         </div>
       </div>
 
-      {/* Advanced Filters */}
       <div className="smp-filters">
         <div className="smp-filter-header">
           <h2 className="smp-filter-title">🎯 Personalize Your Plan</h2>
@@ -275,47 +244,15 @@ const EnhancedMealPlanner = () => {
               </div>
             </div>
           </div>
-          
-          <div className="smp-filter-section">
-            <label className="smp-filter-label">🔥 Daily Calorie Target</label>
-            <div className="smp-calorie-input">
-              <input
-                type="number"
-                value={calorieTarget}
-                onChange={(e) => setCalorieTarget(parseInt(e.target.value))}
-                className="smp-input"
-                min="1200"
-                max="4000"
-                step="100"
-              />
-              <span className="smp-input-suffix">kcal</span>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Premium Meal Planning Grid */}
       <div className="smp-planner">
         <div className="smp-planner-header">
           <h2 className="smp-planner-title">📅 Weekly Meal Schedule</h2>
-          <div className="smp-view-controls">
-            <button 
-              className={`smp-view-btn ${viewMode === 'week' ? 'active' : ''}`}
-              onClick={() => setViewMode('week')}
-            >
-              📊 Week View
-            </button>
-            <button 
-              className={`smp-view-btn ${viewMode === 'day' ? 'active' : ''}`}
-              onClick={() => setViewMode('day')}
-            >
-              📋 Day View
-            </button>
-          </div>
         </div>
         
         <div className="smp-schedule-grid">
-          {/* Time Slots Header */}
           <div className="smp-time-header">
             <div className="smp-time-cell"></div>
             {mealSlots.map(slot => (
@@ -330,7 +267,6 @@ const EnhancedMealPlanner = () => {
             ))}
           </div>
           
-          {/* Days and Meals Grid - Mobile Optimized */}
           {daysOfWeek.map(day => (
             <div key={day.name} className="smp-day-row">
               <div className="smp-day-header">
@@ -343,13 +279,11 @@ const EnhancedMealPlanner = () => {
                 </div>
               </div>
               
-              {/* Mobile Meal Slots - Horizontal Scroll */}
               <div className="smp-meal-slots">
                 {mealSlots.map(slot => {
                   const selectedMeal = mealTimeSlots[slot.key][day.name];
                   return (
                     <div key={`${day.name}-${slot.key}`} className="smp-meal-cell">
-                      {/* Mobile Meal Slot Header */}
                       <div className="smp-meal-slot-header">
                         <span className="smp-slot-icon">{slot.icon}</span>
                         <div className="smp-slot-info">
@@ -381,7 +315,7 @@ const EnhancedMealPlanner = () => {
                               src={`${url}/images/${selectedMeal.image}`} 
                               alt={selectedMeal.name}
                               onError={(e) => {
-                                e.target.src = '/api/placeholder/60/60';
+                                e.target.style.display = 'none';
                               }}
                             />
                           </div>
@@ -392,20 +326,7 @@ const EnhancedMealPlanner = () => {
                                 <span className="smp-stat-icon">💰</span>
                                 {currency}{selectedMeal.price}
                               </span>
-                              {getNutrientValue(selectedMeal, 'calories') > 0 && (
-                                <span className="smp-stat">
-                                  <span className="smp-stat-icon">🔥</span>
-                                  {getNutrientValue(selectedMeal, 'calories')} cal
-                                </span>
-                              )}
                             </div>
-                            {(getNutrientValue(selectedMeal, 'protein') > 0 || getNutrientValue(selectedMeal, 'carbs') > 0 || getNutrientValue(selectedMeal, 'fat') > 0) && (
-                              <div className="smp-nutrition-mini">
-                                {getNutrientValue(selectedMeal, 'protein') > 0 && <span className="smp-mini-stat">P: {getNutrientValue(selectedMeal, 'protein')}g</span>}
-                                {getNutrientValue(selectedMeal, 'carbs') > 0 && <span className="smp-mini-stat">C: {getNutrientValue(selectedMeal, 'carbs')}g</span>}
-                                {getNutrientValue(selectedMeal, 'fat') > 0 && <span className="smp-mini-stat">F: {getNutrientValue(selectedMeal, 'fat')}g</span>}
-                              </div>
-                            )}
                           </div>
                           
                           <button 
@@ -426,7 +347,6 @@ const EnhancedMealPlanner = () => {
         </div>
       </div>
 
-      {/* Premium Analytics Dashboard */}
       <div className="smp-analytics">
         <div className="smp-analytics-header">
           <h2 className="smp-analytics-title">📊 Nutrition Analytics</h2>
@@ -473,9 +393,9 @@ const EnhancedMealPlanner = () => {
           <div className="smp-stat-card premium">
             <div className="smp-stat-icon">💪</div>
             <div className="smp-stat-content">
-              <div className="smp-stat-value">{Math.round(weeklyStats.totalProtein)}g</div>
-              <div className="smp-stat-label">Total Protein</div>
-              <div className="smp-stat-sub">{weeklyStats.proteinPercentage}% of macros</div>
+              <div className="smp-stat-value">{weeklyStats.totalMeals * 20}g</div>
+              <div className="smp-stat-label">Est. Protein</div>
+              <div className="smp-stat-sub">Approx. value</div>
             </div>
           </div>
         </div>
@@ -483,29 +403,9 @@ const EnhancedMealPlanner = () => {
         {showNutritionBreakdown && weeklyStats.totalMeals > 0 && (
           <div className="smp-nutrition-breakdown">
             <div className="smp-macro-chart">
-              <h3>🥗 Real-Time Macronutrient Breakdown</h3>
-              <div className="smp-macro-bars">
-                <div className="smp-macro-item">
-                  <span className="smp-macro-label">Protein ({weeklyStats.proteinPercentage}%)</span>
-                  <div className="smp-macro-bar">
-                    <div className="smp-macro-fill protein" style={{ width: `${Math.min(weeklyStats.proteinPercentage, 100)}%` }}></div>
-                  </div>
-                  <span className="smp-macro-value">{Math.round(weeklyStats.totalProtein)}g</span>
-                </div>
-                <div className="smp-macro-item">
-                  <span className="smp-macro-label">Carbs ({weeklyStats.carbsPercentage}%)</span>
-                  <div className="smp-macro-bar">
-                    <div className="smp-macro-fill carbs" style={{ width: `${Math.min(weeklyStats.carbsPercentage, 100)}%` }}></div>
-                  </div>
-                  <span className="smp-macro-value">{Math.round(weeklyStats.totalCarbs)}g</span>
-                </div>
-                <div className="smp-macro-item">
-                  <span className="smp-macro-label">Fats ({weeklyStats.fatPercentage}%)</span>
-                  <div className="smp-macro-bar">
-                    <div className="smp-macro-fill fats" style={{ width: `${Math.min(weeklyStats.fatPercentage, 100)}%` }}></div>
-                  </div>
-                  <span className="smp-macro-value">{Math.round(weeklyStats.totalFat)}g</span>
-                </div>
+              <h3>🥗 Nutrition Breakdown</h3>
+              <div className="smp-empty-state">
+                <p>Detailed nutrition data coming soon!</p>
               </div>
             </div>
           </div>
@@ -552,8 +452,10 @@ const EnhancedMealPlanner = () => {
         )}
       </div>
     </div>
-    </>
   );
 };
 
 export default EnhancedMealPlanner;
+
+
+

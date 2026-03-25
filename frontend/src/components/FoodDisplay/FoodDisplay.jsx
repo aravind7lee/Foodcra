@@ -9,17 +9,16 @@ import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import { preloadCriticalImages } from "../../utils/performanceOptimizer";
 
 const FoodDisplay = ({ category = "All" }) => {
-  const { food_list, filteredFoodList, url } = useContext(StoreContext);
+  const { food_list, filteredFoodList, url, token } = useContext(StoreContext);
   const location = useLocation();
   const navigate = useNavigate();
   const lastScrolledKeyRef = useRef(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false); // Changed to false for immediate display
 
-  // Check if data is loaded - Immediate loading
+  // Never show loading state - always display content immediately
   useEffect(() => {
-    // Always show content immediately, don't wait for loading
     setIsLoading(false);
-  }, [food_list]);
+  }, [food_list, token]);
 
   // Choose list to show - prioritize food_list unless there's an active search
   const { lastQuery } = useContext(StoreContext);
@@ -77,11 +76,7 @@ const FoodDisplay = ({ category = "All" }) => {
       <div className="food-display-list">
         {useMemo(() => {
           if (!listToShow || !Array.isArray(listToShow) || listToShow.length === 0) {
-            return isLoading ? (
-              Array.from({ length: 8 }, (_, index) => (
-                <FoodItemSkeleton key={`skeleton-${index}`} />
-              ))
-            ) : (
+            return (
               <div className="no-results-block" style={{ textAlign: "center", padding: 24 }}>
                 <p style={{ marginBottom: 12, fontSize: 16 }}>No dishes found for your search.</p>
                 <button className="reset-results-btn" onClick={handleReset} style={{ padding: "8px 14px", borderRadius: 8, cursor: "pointer" }}>
@@ -106,7 +101,7 @@ const FoodDisplay = ({ category = "All" }) => {
             }
             return null;
           });
-        }, [listToShow, category, isLoading, handleReset])}
+        }, [listToShow, category, handleReset])}
       </div>
     </div>
   );

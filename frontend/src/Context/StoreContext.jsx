@@ -26,13 +26,15 @@ const StoreContextProvider = (props) => {
   const currency = "₹";
   const deliveryCharge = 50;
 
-  // WORKING RATING SYSTEM WITH ERROR HANDLING - Initialize with default ratings
+  // WORKING RATING SYSTEM WITH ERROR HANDLING - Initialize with stable default ratings
   const getDefaultRatings = (foodList) => {
     const defaultRatings = {};
     if (Array.isArray(foodList)) {
-      foodList.forEach((item, index) => {
-        const baseRating = 4.2 + (index % 5) * 0.15;
-        const baseCount = 25 + (index % 10) * 3;
+      foodList.forEach((item) => {
+        // Use item ID hash for consistent ratings across sessions
+        const idHash = item._id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const baseRating = 4.2 + ((idHash % 5) * 0.12); // 4.2 to 4.68
+        const baseCount = 45 + ((idHash % 15) * 4); // 45 to 105 reviews
         defaultRatings[item._id] = {
           avgRating: Math.round(baseRating * 10) / 10,
           totalRatings: baseCount
@@ -42,7 +44,7 @@ const StoreContextProvider = (props) => {
     return defaultRatings;
   };
 
-  const [ratingsByItem, setRatingsByItem] = useState(getDefaultRatings(defaultFoodList));
+  const [ratingsByItem, setRatingsByItem] = useState({});
   const [myRatings, setMyRatings] = useState({});
   const [ratingBusyMap, setRatingBusyMap] = useState({});
 
@@ -58,28 +60,17 @@ const StoreContextProvider = (props) => {
       
       try {
         const response = await axios.post(`${url}${API_CONFIG.ENDPOINTS.RATING_BULK}`, { foodIds }, {
-          timeout: 5000
+          timeout: 8000
         });
-        if (response.data.success) {
+        if (response.data.success && response.data.ratings) {
+          // Only update with real ratings from backend
           setRatingsByItem(prev => ({ ...prev, ...response.data.ratings }));
           return;
         }
       } catch (error) {
-        console.warn("Ratings unavailable, using defaults:", error.message);
+        console.warn("Ratings unavailable, keeping stable defaults:", error.message);
       }
-      
-      // Set consistent default values for immediate display
-      const defaultRatings = {};
-      foodIds.forEach((id, index) => {
-        // Use consistent ratings based on item index to avoid random changes
-        const baseRating = 4.2 + (index % 5) * 0.15; // 4.2 to 4.8
-        const baseCount = 25 + (index % 10) * 3; // 25 to 55 reviews
-        defaultRatings[id] = { 
-          avgRating: Math.round(baseRating * 10) / 10, 
-          totalRatings: baseCount 
-        };
-      });
-      setRatingsByItem(prev => ({ ...prev, ...defaultRatings }));
+      // Don't set defaults here - they're already set in initialization
     },
     [url]
   );
@@ -92,22 +83,15 @@ const StoreContextProvider = (props) => {
       try {
         const response = await axios.post(`${url}${API_CONFIG.ENDPOINTS.RATING_USER_BULK}`, 
           { foodIds }, 
-          { headers: { token }, timeout: 5000 }
+          { headers: { token }, timeout: 8000 }
         );
-        if (response.data.success) {
+        if (response.data.success && response.data.ratings) {
           setMyRatings(prev => ({ ...prev, ...response.data.ratings }));
-          return;
         }
       } catch (error) {
         console.warn("User ratings unavailable:", error.message);
       }
-      
-      // Set default values
-      const defaultMyRatings = {};
-      foodIds.forEach(id => {
-        defaultMyRatings[id] = 0;
-      });
-      setMyRatings(prev => ({ ...prev, ...defaultMyRatings }));
+      // Don't set defaults - let it remain empty if not available
     },
     [url, token]
   );
@@ -354,31 +338,26 @@ const StoreContextProvider = (props) => {
       setFilteredFoodList(food_list);
       buildSearchIndex(food_list);
       
-      // Initialize ratings with consistent default values immediately
+      // Initialize ratings ONCE with stable default values
       const foodIds = food_list.map(item => item._id);
-      const initialRatings = {};
-      foodIds.forEach((id, index) => {
-        // Set consistent default ratings for immediate display
-        const defaultRating = 4.2 + (index % 5) * 0.15; // 4.2 to 4.8
-        const defaultCount = 25 + (index % 10) * 3; // 25 to 55 reviews
-        initialRatings[id] = { 
-          avgRating: Math.round(defaultRating * 10) / 10, 
-          totalRatings: defaultCount 
-        };
-      });
+      const initialRatings = getDefaultRatings(food_list);
+      
+      // Set initial ratings immediately for instant display
       setRatingsByItem(initialRatings);
       
-      // Then fetch actual ratings in background
-      setTimeout(() => {
+      // Fetch actual ratings in background without blocking UI
+      const fetchTimer = setTimeout(() => {
         fetchRatingsBulk(foodIds);
         
         // Fetch user's personal ratings if logged in
         if (token) {
           fetchMyRatings(foodIds);
         }
-      }, 100);
+      }, 500);
+      
+      return () => clearTimeout(fetchTimer);
     }
-  }, [food_list, fetchRatingsBulk, fetchMyRatings, token]);
+  }, [food_list, token]);
 
   // Preload critical images
   const preloadCriticalImages = useCallback((foodList) => {
